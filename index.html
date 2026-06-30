@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Freeride — 你亲手起名、替你盯盘动手、亏钱时陪你、还敢说真话的炒股搭子</title>
+<style>
+:root{--bg:#080b11;--card:#121925;--card2:#19222f;--line:#222d3d;--line2:#2c3a4d;--tx:#eaf0f7;--tx2:#9fb0c3;--tx3:#67788c;
+ --acc:#ff8a3d;--acc2:#f5701a;--warn:#ffb454;--bad:#ff6b6b;--good:#ff8a3d;--vio:#d99a5b;--blue:#5ca8ff;--gold:#ffd86b}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#05070b;color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Roboto,Arial,sans-serif;
+ font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:22px 10px}
+.hint{color:var(--tx3);font-size:12px;text-align:center;max-width:390px}.hint b{color:var(--acc)}
+.phone{width:390px;height:min(844px,94vh);background:linear-gradient(180deg,#0b0f16,var(--bg));border-radius:42px;border:1px solid #1b2533;
+ box-shadow:0 30px 90px rgba(0,0,0,.6),inset 0 0 0 6px #05070b;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;height:26px;background:#05070b;border-radius:0 0 16px 16px;z-index:40}
+.statusbar{display:flex;justify-content:space-between;align-items:center;padding:12px 26px 6px;font-size:12px;font-weight:600;color:var(--tx2)}
+.topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 10px}
+.logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#04140f;font-weight:800}
+.topbar b{font-size:15px}.topbar small{display:block;color:var(--tx3);font-size:10.5px;font-weight:500}
+.papertog{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--tx2);background:var(--card2);border:1px solid var(--line);padding:5px 9px;border-radius:20px;cursor:pointer}
+.swt{width:30px;height:17px;border-radius:20px;background:#27313f;position:relative;transition:.2s}
+.swt i{position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:var(--tx2);transition:.2s}
+.papertog.on .swt{background:var(--acc)}.papertog.on .swt i{left:15px;background:#04140f}
+.scroll{flex:1;overflow-y:auto;padding:6px 16px 92px;scroll-behavior:smooth}.scroll::-webkit-scrollbar{width:0}
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(9,13,19,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:0 6px 14px;z-index:30}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;color:var(--tx3);font-size:10.5px;cursor:pointer;padding:8px 6px;flex:1}
+.tab .ti{font-size:19px;line-height:1}.tab.on{color:var(--acc)}
+.tab.mid{margin-top:-16px}.tab.mid .ti{width:50px;height:50px;border-radius:16px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;color:#04140f;font-size:22px;box-shadow:0 8px 22px rgba(255,138,61,.4)}
+h1{font-size:21px;font-weight:750;letter-spacing:.2px;padding:6px 0 2px}
+.sub{color:var(--tx2);font-size:12.5px;margin-bottom:14px}
+.rel{font-size:11.5px;color:var(--vio);background:rgba(217,154,91,.08);border:1px solid rgba(217,154,91,.22);padding:6px 10px;border-radius:20px;display:inline-block;margin-bottom:12px}
+h2{font-size:13.5px;font-weight:650;margin:20px 0 10px;display:flex;align-items:center;gap:7px}
+.card{background:linear-gradient(180deg,var(--card),#0f1620);border:1px solid var(--line);border-radius:16px;padding:14px 15px;margin-bottom:12px}
+.card.hl{border-color:rgba(255,138,61,.4);box-shadow:0 0 0 1px rgba(255,138,61,.1)}
+.card.gold{border-color:rgba(255,216,107,.35)}.card.work{border-left:3px solid var(--vio)}.card.calm{border-color:rgba(92,168,255,.4);background:linear-gradient(180deg,#0f1a26,#0c141d)}
+.k{color:var(--tx3);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+.big{font-size:23px;font-weight:780;letter-spacing:.3px}.muted{color:var(--tx2)}.mut3{color:var(--tx3);font-size:12px}
+.row{display:flex;align-items:center;gap:9px}.between{justify-content:space-between}.wrap2{display:flex;flex-wrap:wrap;gap:7px}.up{color:var(--good)}.down{color:var(--bad)}
+.tag{font-size:10px;font-weight:700;letter-spacing:.3px;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.tag.acc{background:rgba(255,138,61,.15);color:var(--acc)}.tag.vio{background:rgba(217,154,91,.16);color:var(--vio)}
+.tag.warn{background:rgba(255,180,84,.15);color:var(--warn)}.tag.bad{background:rgba(255,107,107,.15);color:var(--bad)}.tag.blue{background:rgba(92,168,255,.15);color:var(--blue)}.tag.gold{background:rgba(255,216,107,.16);color:var(--gold)}
+.pill{font-size:11px;padding:5px 10px;border-radius:20px;background:var(--card2);color:var(--tx2);border:1px solid var(--line);white-space:nowrap;cursor:pointer}
+.pill.on{border-color:var(--acc);color:var(--acc);background:rgba(255,138,61,.1)}
+.bar{height:7px;border-radius:6px;background:var(--card2);overflow:hidden}.bar>i{display:block;height:100%;border-radius:6px}
+hr{border:none;border-top:1px solid var(--line);margin:12px 0}
+button.cta{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04140f;border:none;font-weight:750;padding:11px 16px;border-radius:13px;cursor:pointer;font-size:13.5px;width:100%}
+button.cta:active{transform:scale(.98)}
+button.ghost{background:var(--card2);color:var(--tx);border:1px solid var(--line);padding:10px 14px;border-radius:13px;cursor:pointer;font-size:13px;width:100%}
+button.pro{background:linear-gradient(135deg,var(--gold),#f0b73c);color:#1a1304;border:none;font-weight:750;padding:11px 16px;border-radius:13px;cursor:pointer;font-size:13.5px;width:100%}
+button.kill{background:rgba(255,107,107,.14);color:var(--bad);border:1px solid rgba(255,107,107,.4);padding:12px;border-radius:13px;cursor:pointer;font-size:14px;font-weight:700;width:100%}
+.li{display:flex;gap:11px;padding:11px 0;border-bottom:1px solid var(--line)}.li:last-child{border-bottom:none}
+.ic{width:32px;height:32px;border-radius:10px;background:var(--card2);display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.lnk{color:var(--acc);cursor:pointer;font-size:12px;font-weight:650}
+.method{color:var(--vio);font-size:10px;cursor:pointer;border:1px dashed rgba(217,154,91,.4);padding:1px 5px;border-radius:6px;margin-left:4px}
+.tip{display:none;font-size:11px;color:var(--tx2);background:rgba(217,154,91,.08);border:1px solid rgba(217,154,91,.25);padding:7px 9px;border-radius:9px;margin-top:7px}.tip.show{display:block}
+.reveal{display:none;margin-top:10px}.reveal.show{display:block}
+.seg{display:flex;gap:6px;background:var(--card2);padding:4px;border-radius:12px;border:1px solid var(--line);margin-bottom:14px}
+.seg button{flex:1;background:none;border:none;color:var(--tx2);padding:9px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:650}
+.seg button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04140f}
+.msg{max-width:88%;padding:11px 13px;border-radius:13px;font-size:12.8px;margin-bottom:10px}
+.msg.me{margin-left:auto;background:#1c2838;border:1px solid var(--line)}.msg.ray{background:var(--card);border:1px solid var(--line)}
+.who{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+.av{width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,var(--acc),var(--acc2));display:grid;place-items:center;font-size:10px;font-weight:800;color:#0a0e14}
+.reason{display:none;margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;font-size:11.5px;color:var(--tx2)}.reason.show{display:block}
+.wrong{margin-top:7px;font-size:11px;color:var(--warn);background:rgba(255,180,84,.07);border:1px solid rgba(255,180,84,.2);padding:6px 9px;border-radius:8px}
+.chip{font-size:12px;padding:7px 11px;border-radius:20px;background:var(--card2);border:1px solid var(--line);color:var(--tx2);cursor:pointer}.chip:active{border-color:var(--acc)}
+.track{display:flex;align-items:flex-end;gap:2px;height:30px;margin:8px 0}.track i{flex:1;border-radius:2px;min-height:4px}
+.calib{font-size:11px;color:var(--tx2);background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-top:6px}
+.dial{display:flex;gap:6px;background:var(--card2);padding:4px;border-radius:12px;border:1px solid var(--line)}
+.dial button{flex:1;background:none;border:none;color:var(--tx2);padding:9px 4px;border-radius:9px;cursor:pointer;font-size:11px;font-weight:650}
+.dial button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04140f}.dial button.locked{opacity:.6}
+.flag{font-size:11.5px;color:var(--tx2);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.tl{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.tl:last-child{border-bottom:none}
+.dotc{width:9px;height:9px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.vs{display:flex;gap:8px;margin:4px 0}.vs>div{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px}
+input,select{background:var(--card2);border:1px solid var(--line);color:var(--tx);padding:10px 12px;border-radius:10px;font-size:13px;font-family:inherit;width:100%}
+.ov{position:absolute;inset:0;z-index:50;background:rgba(5,7,11,.78);backdrop-filter:blur(8px);display:none;align-items:flex-end}.ov.show{display:flex}
+.sheet{width:100%;background:linear-gradient(180deg,#141d29,#0d141d);border:1px solid var(--line2);border-radius:24px 24px 42px 42px;padding:22px 18px 30px;animation:up .3s ease}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}@keyframes fade{from{opacity:0}to{opacity:1}}
+.onb{position:absolute;inset:0;z-index:60;background:radial-gradient(600px 300px at 50% 0%,#2a1a0e,#080b11 60%);display:flex;flex-direction:column;padding:54px 22px 28px;animation:fade .3s;overflow-y:auto}
+.exp{border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px;cursor:pointer;background:var(--card)}.exp:active{border-color:var(--acc)}
+.note{font-size:11px;color:var(--tx3);margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.toast{position:absolute;top:54px;left:14px;right:14px;z-index:45;background:linear-gradient(135deg,#15212f,#101824);border:1px solid var(--line2);border-radius:14px;padding:11px 13px;box-shadow:0 10px 30px rgba(0,0,0,.5);display:none;animation:up .3s}.toast.show{display:block}
+.shock{font-size:25px;font-weight:800;line-height:1.35}
+.cal-wk{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;color:var(--tx3);font-size:11px;margin-bottom:6px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12.5px;color:var(--tx3);border-radius:9px;position:relative}
+.cell.hasev{cursor:pointer;color:var(--tx);font-weight:700;background:var(--card2)}
+.cell.today{outline:1px solid var(--acc);color:var(--acc);font-weight:800}
+.evd{width:5px;height:5px;border-radius:50%;margin-top:2px}
+.atiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tile{background:linear-gradient(180deg,var(--card),#0f1620);border:1px solid var(--line);border-radius:13px;padding:10px 8px;cursor:pointer;position:relative;text-align:center;transition:.12s}
+.tile:active{transform:scale(.97)}.tile.rec{border-color:rgba(255,138,61,.5)}
+.tile .em{font-size:22px;line-height:1.1}
+.tile .tn{font-size:10.5px;font-weight:650;display:block;margin:5px 0 3px;line-height:1.15;color:var(--tx)}
+.tile .tm{font-size:11px;font-weight:800}
+.tile .rd{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%}
+.tile .star{position:absolute;top:6px;left:7px;font-size:9px}
+.mrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin:10px 0}
+.mcell{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:8px 9px}
+.mcell .ck{color:var(--tx3);font-size:9.5px;font-weight:700;text-transform:uppercase}
+.mcell .cv{font-size:15px;font-weight:780;margin-top:2px}
+.gaugebar{height:9px;border-radius:6px;background:var(--card2);overflow:hidden;margin:5px 0}.gaugebar>i{display:block;height:100%}
+</style>
+</head>
+<body>
+<div class="hint">📱 套个<b>手机外壳</b>还原真实场景 · 双击即开 · 数字是演示假数据 · agent 名字你自己起</div>
+<div class="phone">
+  <div class="notch"></div>
+  <div class="statusbar"><span>9:24</span><span>Freeride</span><span>📶 100%</span></div>
+  <div class="onb" id="onb"></div>
+  <div class="toast" id="toast" onclick="dismissToast();go('today')"></div>
+  <div class="topbar"><div class="logo">F</div><div><b>Freeride</b><small id="topsub">你的炒股搭子</small></div>
+    <div class="papertog on" id="paper" onclick="togglePaper()"><span id="paperlb">模拟陪练</span><div class="swt"><i></i></div></div></div>
+  <div class="scroll" id="scroll"></div>
+
+  <div class="ov" id="pro"><div class="sheet">
+    <div class="row between"><b style="font-size:16px" id="protitle">⚡ 让它真的替你动手</b><span class="lnk" onclick="closePro()">关闭</span></div>
+    <div class="muted" id="prodesc" style="margin:10px 0 4px"></div>
+    <div class="card gold" style="margin-top:12px"><div class="row between"><b>Freeride Pro</b><div><span class="big" style="font-size:20px">¥38</span><span class="mut3">/月</span></div></div>
+      <div style="margin-top:10px"><div class="li" style="padding:7px 0"><span>🤖</span><div>在你定的规矩里<b>真的替你动手</b>(自动减仓/上保险),越界立刻停</div></div>
+        <div class="li" style="padding:7px 0"><span>🛑</span><div>亏损刹车 + <b>随时一键收回授权</b>,每步留痕</div></div>
+        <div class="li" style="padding:7px 0"><span>♾️</span><div>随便问、深度分析、复杂的活也能交给它</div></div></div>
+      <div class="mut3" style="margin:8px 0 12px">提醒、盯盘、找机会、聊天 <b>永远免费</b>。Pro 只解锁"替你动手"。</div>
+      <button class="pro" onclick="closePro()">免费试 Pro</button><button class="ghost" style="margin-top:8px" onclick="closePro()">先这样就好</button></div>
+  </div></div>
+
+  <div class="ov" id="share"><div class="sheet" id="sharebody"></div></div>
+  <div class="ov" id="adrawer"><div class="sheet" id="adrawerbody" style="max-height:88%;overflow-y:auto"></div></div>
+
+  <div class="ov" id="settle"><div class="sheet">
+    <div class="row between"><b style="font-size:16px">🎉 陪练第 7 天 · 成果结算</b><span class="lnk" onclick="closeSettle()">关闭</span></div>
+    <div class="card" style="margin-top:12px"><div class="muted" style="font-size:12.5px">这一周 <b id="setn"></b> 替你(都在模拟盘、零风险):</div>
+      <div class="li"><div class="ic">🛡️</div><div>拦下你 <b>3 次</b>破规矩(2 次追高、1 次报复性补仓)</div></div>
+      <div class="li"><div class="ic">📉</div><div>一次大跌前提醒你上了保险,<b>少亏约 8%</b></div></div>
+      <div class="li"><div class="ic">📈</div><div>模拟盘这周 <b class="up">+4.2%</b>,它说"不知道"的 2 次也没乱给</div></div></div>
+    <div class="muted" style="margin:6px 0 10px">它已经在<b>你自己的数据</b>上证明过了。要不要让它来真的——在你定的规矩里替你动手?</div>
+    <button class="pro" onclick="closeSettle();openProAuto()">让它来真的(看 Pro)</button>
+    <button class="ghost" style="margin-top:8px" onclick="closeSettle()">再陪我练练</button>
+  </div></div>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tab on" data-t="today"><span class="ti">◉</span>今天</button>
+    <button class="tab" data-t="hot"><span class="ti">🔥</span>热点</button>
+    <button class="tab mid" data-t="agent"><span class="ti">✦</span><span id="agentlb" style="font-size:9.5px;margin-top:1px"></span></button>
+    <button class="tab" data-t="cal"><span class="ti">📅</span>日历</button>
+    <button class="tab" data-t="me"><span class="ti">☰</span>我的</button>
+  </nav>
+</div>
+<div class="hint">三轮改完重点看:① 选"<b>全仓一只</b>"看洞察会变 ② 今天的<b>「昨晚发现」</b>+「<b>▶︎模拟大跌</b>」陪伴 ③ 「替我干活」里的<b>亏损刹车/我的规矩</b> ④ 我的→<b>钱安全吗</b>、<b>看第7天结算</b></div>
+
+<script>
+/* ---------- 状态 ---------- */
+let NAME='',PAPER=true,AGENTMODE='team',AUTO=0,PENDING=true,ONBSTEP=1,PORT='ai5',DD=false,HOTCAT='我的持仓',CALSEL=new Set([0,1]),CALDAY=null,MANAGEON=false,CUREARN='NVDA',WPRESET=0,HOTMODE='swipe',SWIPEI=0,PREF={themes:{},risk:0,n:0};
+let STYLE='',AGENTCAT='全部',REPTGT='寒武纪',MEM=[{src:'行为',t:'你爱追高、一回调就手痒(本月已拦下 3 次)'},{src:'行为',t:'听劝率 76%,比多数人高'},{src:'持仓',t:'你 71% 押在 AI 一个方向'},{src:'你说的',t:'绝不碰日内高频'}];
+let FEED=[
+ {d:'今早 06:14',t:'比特币赌涨的人退了一些,按你立的规矩提醒了你(你在睡觉),没擅自动手',c:'blue'},
+ {d:'昨天 14:30',t:'你 AI 仓一度冲到 79%,我先替你顶住没乱动,等你醒来再商量',c:'warn'},
+ {d:'前天',t:'你想追高时我拦了一下,你自己改成了半仓',c:'good'}];
+let TASKS=[{t:'盯着你的 AI 仓,破 80% 就提醒你、并把对冲单拟好',s:'盯着呢 · 现在 76%',p:76},
+ {t:'每晚帮你找几个机会',s:'昨晚跑了 180 次,挑出 2 个,已放进今天',p:100}];
+const SHOCK={
+ ai5:{big:'你以为买了 5 样,<br>其实 <span style="color:var(--bad)">71%</span> 是<br>同一个赌注。',sub:'英伟达、台积电、特斯拉、比特币,真出事会<b>一起跌</b>。',exp:71,head:'你 71% 押在 AI 一个方向'},
+ one:{big:'你把 <span style="color:var(--bad)">100%</span> 身家,<br>压在<br>一只票上。',sub:'英伟达打个喷嚏,你就重感冒——<b>没有任何缓冲</b>。',exp:100,head:'你 100% 压在英伟达一只票上'},
+ bal:{big:'你这组合<br>还算 <span style="color:var(--good)">稳</span>。<br>但有个角落在变大。',sub:'你的科技仓最近和大盘越绑越紧,<b>悄悄变集中了</b>。',exp:38,head:'有个角落在悄悄变集中(科技 38%)'}};
+
+/* ---------- 数据 ---------- */
+const PF=[{t:'NVDA',n:'英伟达',w:24,d:1.8},{t:'TSM',n:'台积电',w:18,d:0.9},{t:'BTC',n:'比特币',w:16,d:-2.3},{t:'TSLA',n:'特斯拉',w:12,d:-1.1},{t:'KWEB',n:'中概互联',w:14,d:0.4},{t:'现金',n:'现金',w:16,d:0}];
+const FACTORS=[{f:'押在 AI(芯片/算力)上的比重',v:71,c:'bad',hint:'看你每个持仓平时跟 AI 板块涨跌多同步,按仓位加起来。只用当时能看到的数据,不偷看后来结果。',note:'四只看着各买各的,其实押同一件事'},
+ {f:'对利率的敏感度',v:44,c:'warn',hint:'看组合在利率波动时跟着动多少,最近一年滚动算。',note:'利率一动,可能比想象中亏得多'},
+ {f:'对中国市场的敏感度',v:21,c:'blue',hint:'看你跟中国大盘一起涨跌的紧密程度。',note:'中概是你唯一真正分散的一块'}];
+const IDEA={t:'给你那堆 AI 股,买个便宜的"防大跌"保险',conf:62,crowd:'没人扎堆',why:'你押 AI 太重。不是叫你卖——拿不到 1.5% 仓位买个保险,万一 AI 熄火,你不至于被打回原形。',size:'不超过 1.5% 仓位',vs:'跟你情况差不多的人 82% 都光买不做保险 → 保险现在便宜',track:{w:11,l:8,avg:'+2.3%',worst:'-4.1%',n:19,say:60,real:58}};
+const TIMELINE=[{c:'good',d:'3 天前',t:'它说"比特币太挤,短期别追" → 3 天后真回调了 6%,你躲过了'},{c:'bad',d:'10 天前',t:'它说"这只热点你没把握,我也没底" → 你没听,第二天回吐 4%'},{c:'good',d:'2 周前',t:'它说"中概是你唯一分散,别砍" → 你留着,后来涨了'}];
+
+/* ---------- 工具 ---------- */
+const $=s=>document.querySelector(s);
+const cc={good:'var(--good)',bad:'var(--bad)',warn:'var(--warn)',blue:'var(--blue)',vio:'var(--vio)'};
+const sign=d=>d>0?`<span class="up">▲${d}%</span>`:d<0?`<span class="down">▼${Math.abs(d)}%</span>`:`<span class="mut3">—</span>`;
+const av=()=>`<span class="av">${(NAME||'它')[0]}</span>`;
+function track(tk){let b='';for(let i=0;i<tk.n;i++){const w=i<tk.w;b+=`<i style="background:${w?'var(--good)':'var(--bad)'};height:${w?60+i%4*10:30}%"></i>`;}
+ return `<div class="k" style="margin-top:6px">${NAME}以前发这种提醒时,结果是这样(赚赔都算上)</div><div class="track">${b}</div>
+ <div class="mut3"><b class="up">赚 ${tk.w} 次</b> / <b class="down">赔 ${tk.l} 次</b> · 平均 ${tk.avg} · 最惨 ${tk.worst} · 共 ${tk.n} 次</div>
+ <div class="calib">📐 ${NAME}说有 <b>${tk.say}%</b> 把握时,过去大概真有 <b>${tk.real}%</b> 兑现 —— 没吹牛。</div>`;}
+
+/* ---------- onboarding(第1轮:动态洞察) ---------- */
+const SUG=['小赚','旺财','老把式','阿尔法','钱多多','稳稳'];
+function renderOnb(){const o=$('#onb');
+ if(ONBSTEP===1){o.innerHTML=`<div style="text-align:center"><div class="logo" style="width:46px;height:46px;font-size:22px;margin:10px auto 14px">F</div>
+   <h1 style="justify-content:center">先给你的炒股搭子起个名字</h1>
+   <div class="sub" style="text-align:center">别的 app 给你<b>信息</b>;它替你<b>盯盘、把关、还能替你动手</b>。<br>起了名,它就是你的了。</div></div>
+   <input id="nm" placeholder="给它起个名,比如 小赚" style="margin:8px 0 12px" oninput="$('#nx').disabled=!this.value.trim()"/>
+   <div class="wrap2">${SUG.map(s=>`<span class="chip" onclick="$('#nm').value='${s}';$('#nx').disabled=false">${s}</span>`).join('')}</div>
+   <button id="nx" class="cta" style="margin-top:auto" disabled onclick="NAME=$('#nm').value.trim()||'小赚';ONBSTEP=2;renderOnb()">就叫它这个 →</button>`;}
+ else if(ONBSTEP===2){o.innerHTML=`<div style="margin-bottom:6px"><h1>${NAME},你好👋 先看看我现在拿着啥</h1><div class="sub">告诉${NAME}你大概的持仓,它好替你看门道。</div></div>
+   <div class="exp" onclick="PORT='ai5';ONBSTEP=3;renderOnb()"><div class="row between"><b>🔥 全押科技/AI(好几只)</b><span class="tag bad">很多人这样</span></div><div class="mut3">英伟达 · 台积电 · 比特币 · 特斯拉 · 中概</div></div>
+   <div class="exp" onclick="PORT='one';ONBSTEP=3;renderOnb()"><div class="row between"><b>🙈 我就全仓一只(英伟达)</b><span class="tag bad">最常见</span></div><div class="mut3">所有钱都在一只票上</div></div>
+   <div class="exp" onclick="PORT='bal';ONBSTEP=3;renderOnb()"><div class="row between"><b>⚖️ 稳一点(指数+黄金+债)</b><span class="tag blue">示例</span></div><div class="mut3">大盘指数 + 黄金 + 债券 + 一点科技</div></div>
+   <div class="note" style="text-align:center;border:none;margin-top:auto">持仓只存在你这台手机里 · 不碰你的钱</div>`;}
+ else{const k=SHOCK[PORT];o.innerHTML=`<div class="row" style="margin-bottom:14px">${av()}<b>${NAME}看完了,说句实话——</b></div>
+   <div class="card" style="background:linear-gradient(135deg,#241016,#140c10);border-color:var(--bad);padding:22px 18px"><div class="shock">${k.big}</div>
+     <div class="muted" style="margin-top:12px">${k.sub} ${NAME}已经替你盯上了。</div></div>
+   <div class="card" style="text-align:center"><div class="mut3">这事够多人没意识到 —— 发给也在炒股的朋友?</div>
+     <button class="ghost" style="margin-top:8px" onclick="openShock()">📤 把这个"真相"分享出去</button></div>
+   <button class="cta" style="margin-top:auto" onclick="startApp()">让 ${NAME} 替我盯着 →</button>
+   <div class="note" style="text-align:center;border:none">不是投资建议 · 不保证赚钱</div>`;}}
+
+/* ---------- 今天(第2轮:每日发现 + 关系 + 回撤陪伴) ---------- */
+const V={};
+V.today=()=>DD?todayDD():todayNormal();
+function todayNormal(){const k=SHOCK[PORT];return `
+ <h1>${NAME}早就替你看完隔夜了</h1>
+ <div class="rel">🤝 我们一起 23 天 · 躲过 2 次大跌 · 它越来越懂你</div>
+ ${PREF.n>0?`<div class="card" onclick="go('memory')" style="cursor:pointer;border-color:rgba(255,138,61,.25)"><div class="mut3" style="font-size:12px">🧠 ${NAME} 记着你的口味:${prefSummary()} —— 这些都在改变它怎么帮你投。<span class="lnk">看记忆›</span></div></div>`:''}
+ <div class="card hl"><div class="row between"><b>🌙 昨晚 ${NAME} 替你跑了一夜</b><span class="tag vio">新发现</span></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px">发现一件你可能没注意的事 ——</div>
+   <button class="ghost" onclick="this.nextElementSibling.classList.add('show');this.style.display='none'">看看它发现了啥 👀</button>
+   <div class="reveal"><div class="muted" style="font-size:12.5px">你那只<b>特斯拉</b>,最近和英伟达越来越同涨同跌了——你比自己以为的<b>更集中</b>。要不要我帮你想个办法?</div></div></div>
+ <h2>⚠️ 今天最要紧的一件事</h2>
+ <div class="card"><div class="muted" style="margin-bottom:8px">${k.head}。${NAME}已替你拟好一个便宜的"防大跌"保险,<b>等你点头</b>。</div>
+   <button class="cta" onclick="AGENTMODE='work';go('agent')">去看 ${NAME} 拟的单 →</button></div>
+ <div class="card work"><div class="row between"><b>🤖 ${NAME}正替你盯着</b><span class="lnk" onclick="go('agent')">管理</span></div>
+   <div class="muted" style="margin:6px 0;font-size:12.5px">"AI 仓破 80% 就提醒你" · 现在 <b>76%</b></div><div class="bar"><i style="width:76%;background:var(--warn)"></i></div></div>
+ <h2>🎓 ${NAME}陪你练到第 3 天 <span class="tag acc">共7天</span></h2>
+ <div class="card"><div class="muted" style="font-size:12.5px">零风险练一周,看它准不准——准了再决定上真钱。</div>
+   <div class="bar" style="margin-top:8px"><i style="width:43%;background:linear-gradient(90deg,var(--acc),var(--blue))"></i></div>
+   <div class="row between" style="margin-top:6px"><span class="mut3">已 3 天 · 说中 4 次、说"不知道" 2 次</span><span class="lnk" onclick="openSettle()">看第7天结算→</span></div></div>
+ <div class="card hl" onclick="go('replica')" style="cursor:pointer"><div class="row"><div class="ic">🧩</div><div style="flex:1"><b>买不起 / 买不了?做个"平替篮子"</b><div class="mut3">寒武纪一手15万、商业航天指数一手60万、海外买不了… 用小本金复刻同款走势</div></div><span class="mut3">›</span></div></div>
+ <div class="card hl" onclick="AGENTMODE='team';go('agent')" style="cursor:pointer"><div class="row"><div class="ic">🛒</div><div style="flex:1"><b>组建你的 Agent 战队</b><div class="mut3">像挑主题基金:AI/贵金属/电力/全天候/农业… 自己选、自己配权重</div></div><span class="mut3">›</span></div></div>
+ <button class="ghost" onclick="DD=true;go('today')">▶︎ 模拟今天大跌(演示回撤陪伴)</button>`;}
+function todayDD(){return `
+ <h1 style="color:var(--bad)">今天大盘绿了 📉</h1>
+ <div class="rel">🤝 我们一起 23 天 · 这种日子我都在</div>
+ <div class="card calm"><div class="row">${av()}<b>${NAME}</b></div>
+   <div class="muted" style="margin:10px 0;font-size:13px">你账户今天 <b class="down">-3.1%</b>。我知道你现在手痒、想做点什么——<b>先别。</b>你这种组合一年会有好几次这样的波动,这不是出事,是正常呼吸。</div>
+   <div class="muted" style="font-size:12.5px">我替你看过了:今天的跌<b>大部分是噪音</b>,你那个保险也在起作用。要不要我陪你一条条看,哪些该担心、哪些不用?</div>
+   <div class="row" style="gap:8px;margin-top:12px"><button class="cta" onclick="alert('（演示）'+NAME+'：来，我们一条条看。第一只…')">陪我看看</button><button class="ghost" onclick="DD=false;go('today')">我缓过来了</button></div></div>
+ <div class="card"><div class="mut3">📊 历史上你在 -3% 这种日子手动割肉的 4 次,有 3 次第二周就涨回来了。${NAME}记得。</div></div>`;}
+
+function ideaCard(){const i=IDEA;return `<div class="card hl" style="border-left:3px solid var(--acc)">
+ <div class="row between"><b style="font-size:13.5px">${i.t}</b><span class="tag acc">把握 ${i.conf}%</span></div>
+ <div class="muted" style="margin:8px 0 6px;font-size:12.5px">${i.why}</div>
+ <div class="wrap2" style="margin:6px 0"><span class="pill">🫧 ${i.crowd}</span><span class="pill">仓位 ${i.size}</span></div>
+ ${track(i.track)}<hr/><div class="mut3">🧭 你和大多数人比:${i.vs}</div></div>`;}
+
+/* ---------- agent ---------- */
+V.agent=()=>`<h1>${NAME} ✦</h1>
+ <div class="seg">${[['team','战队'],['auto','管钱'],['work','干活'],['chat','聊']].map(([k,l])=>`<button class="${AGENTMODE===k?'on':''}" onclick="AGENTMODE='${k}';go('agent')">${l}</button>`).join('')}</div>
+ ${AGENTMODE==='team'?teamView():AGENTMODE==='auto'?autoView():AGENTMODE==='work'?workView():chatView()}`;
+const ACATS=['全部','算力/科技','主题成长','医药','周期/资源','防御/红利','跨市场/特殊','加密'];
+const THEMES=[
+ {key:'aibottle',emoji:'🔩',name:'AI 瓶颈 Agent',cat:'算力/科技',featured:1,desc:'专研 AI 产业链最卡脖子的环节:HBM/CoWoS 先进封装/CPO 光模块/液冷/高端 PCB/HVDC 电源',m30:11.6,risk:'高',hot:70,y1:47,win:63,ir:1.8,mdd:21,vol:29,cap:'中',turn:'中',holds:'中际旭创·新易盛·胜宏科技·银轮股份·长电科技',fit:'相信"卖铲子"逻辑、扛得住波动的进取型',view:'AI 不缺需求,缺的是 HBM/封装/光/电——卡脖子的环节最赚钱,但也最拥挤,我盯着估值不追高',eq:[0,9,6,17,14,28,38,47]},
+ {key:'mapping',emoji:'🌐',name:'欧美映射 Agent',cat:'跨市场/特殊',featured:1,desc:'找海外热点股在 A 股/港股的映射股、影子股',m30:7.8,risk:'高',hot:58,y1:33,win:60,ir:1.3,mdd:17,vol:23,cap:'中',turn:'中',holds:'工业富联(英伟达)·拓普集团(特斯拉)·药明康德(礼来)·寒武纪(国产GPU)',fit:'想吃海外 beta、却只能买 A 股港股的人',view:'海外涨什么,我帮你找 A 股/港股里跟得最紧的那个,赚的是时差和情绪传导',eq:[0,5,3,10,8,16,24,33]},
+ {key:'ai',emoji:'🤖',name:'AI 主题 Agent',cat:'算力/科技',desc:'英伟达/台积电/算力/AI 应用,顺 AI 浪潮',m30:8.2,risk:'高',hot:73,picked:true,w:50,y1:34,win:61,ir:1.4,mdd:18,vol:28,cap:'大',turn:'中',holds:'英伟达·台积电·中际旭创·工业富联',fit:'相信 AI 长期、能扛波动的进取型',view:'AI 算力还在加速,但已经很挤,我会边赚边备对冲',eq:[0,5,3,9,7,14,20,34]},
+ {key:'metal',emoji:'🥇',name:'贵金属 Agent',cat:'周期/资源',desc:'黄金/白银/矿企,避险与抗通胀',m30:12.4,risk:'中',hot:41,picked:true,w:30,y1:22,win:58,ir:1.1,mdd:12,vol:16,cap:'中',turn:'低',holds:'紫金矿业·山东黄金·赤峰黄金·黄金ETF',fit:'想要避险压舱的稳健型',view:'央行在买、实际利率下行,黄金顺风',eq:[0,3,6,5,10,14,18,22]},
+ {key:'allweather',emoji:'⛅',name:'全天候 Agent',cat:'防御/红利',desc:'股债商品均衡,涨跌都能扛,求稳',m30:1.6,risk:'低',hot:55,picked:true,w:20,y1:9,win:64,ir:1.6,mdd:6,vol:8,cap:'大',turn:'低',holds:'宽基ETF·黄金·国债·商品',fit:'求稳、不想大起大落',view:'不赌方向,均衡防守,做你组合的压舱石',eq:[0,1,2,2,4,5,7,9]},
+ {key:'aibottle2',emoji:'🔬',name:'半导体国产替代 Agent',cat:'算力/科技',desc:'设备/材料/EDA/国产 GPU,卡脖子→国产替代',m30:6.4,risk:'高',hot:49,y1:29,win:58,ir:1.2,mdd:20,vol:27,cap:'中',turn:'中',holds:'中芯国际·北方华创·中微公司·寒武纪',fit:'看好国产替代长逻辑',view:'卡脖子→国产替代是长线确定性,短期受周期和情绪扰动',eq:[0,4,7,5,13,19,24,29]},
+ {key:'power',emoji:'⚡',name:'美国电力 Agent',cat:'算力/科技',desc:'AI 耗电催生的电力/电网/核电',m30:15.3,risk:'高',hot:62,y1:41,win:59,ir:1.5,mdd:22,vol:30,cap:'中',turn:'中',holds:'Vistra·Constellation·GE Vernova·NuScale',fit:'看好 AI 耗电、能扛高波动',view:'AI 数据中心吃电,电力是卖铲子的',eq:[0,8,5,15,12,24,30,41]},
+ {key:'tmt',emoji:'📱',name:'TMT Agent',cat:'算力/科技',desc:'科技/媒体/通信成长股',m30:4.1,risk:'高',hot:38,y1:18,win:54,ir:0.9,mdd:20,vol:26,cap:'大',turn:'中',holds:'腾讯·金山办公·恒生电子',fit:'科技成长爱好者',view:'跟着大科技走,波动不小',eq:[0,4,2,7,5,10,13,18]},
+ {key:'robot',emoji:'🦿',name:'人形机器人 Agent',cat:'主题成长',desc:'具身智能/减速器/丝杠/灵巧手/电机',m30:-4.5,risk:'极高',hot:51,y1:19,win:50,ir:0.6,mdd:31,vol:40,cap:'小',turn:'高',holds:'汇川技术·绿的谐波·鸣志电器·三花智控',fit:'赌产业爆发、扛得住大波动',view:'主线很硬(十五五重点),但节奏忽快忽慢,最近在回调,适合分批',eq:[0,8,4,14,6,16,10,19]},
+ {key:'newprod',emoji:'🦾',name:'智能制造 Agent',cat:'主题成长',desc:'工业自动化/智能制造',m30:-3.2,risk:'高',hot:29,y1:-2,win:49,ir:0.5,mdd:28,vol:32,cap:'中',turn:'高',holds:'汇川技术·埃斯顿·拓斯达',fit:'能接受主题兑现慢的进取型',view:'主题好但兑现慢,最近回调,我承认这阵不好做',eq:[0,6,3,8,2,-1,1,-2]},
+ {key:'solid',emoji:'🔋',name:'固态电池 Agent',cat:'主题成长',desc:'电解质/锂金属负极/设备',m30:-3.8,risk:'高',hot:44,y1:12,win:48,ir:0.5,mdd:26,vol:33,cap:'中',turn:'高',holds:'宁德时代·赣锋锂业·先导智能',fit:'愿等 27-28 量产兑现的进取型',view:'产业化要等两三年,现在是预期博弈,波动大,我控制仓位',eq:[0,5,2,9,4,8,3,12]},
+ {key:'evtol',emoji:'🚁',name:'低空经济 Agent',cat:'主题成长',desc:'eVTOL/无人机/空管',m30:-6.2,risk:'极高',hot:36,y1:8,win:46,ir:0.4,mdd:33,vol:42,cap:'小',turn:'高',holds:'亿航·中信海直·万丰奥威',fit:'主题博弈、心脏强大者',view:'政策催化多但商业化早期,纯主题、容易暴涨暴跌,最近在亏',eq:[0,7,3,12,5,9,2,8]},
+ {key:'innodrug',emoji:'💉',name:'创新药出海 Agent',cat:'医药',desc:'GLP-1 减肥药/ADC/双抗/license-out',m30:9.3,risk:'高',hot:47,y1:41,win:62,ir:1.6,mdd:18,vol:25,cap:'中',turn:'中',holds:'恒瑞医药·百济神州·信达生物·药明康德',fit:'看好中国创新药出海',view:'license-out 创新高、减肥药放量,这是少数能讲全球故事的中国资产',eq:[0,6,11,8,18,28,35,41]},
+ {key:'pharma',emoji:'💊',name:'医药 Agent',cat:'医药',desc:'创新药/医疗器械,防御+成长',m30:2.9,risk:'中',hot:21,y1:14,win:57,ir:1.1,mdd:14,vol:17,cap:'中',turn:'低',holds:'恒瑞医药·迈瑞医疗·药明康德',fit:'防御+成长兼顾',view:'稳一点的成长,适合压舱',eq:[0,2,4,3,7,10,12,14]},
+ {key:'metal2',emoji:'🐉',name:'中概反弹 Agent',cat:'跨市场/特殊',desc:'港股/中概科技,估值修复',m30:6.7,risk:'高',hot:33,y1:31,win:56,ir:1.2,mdd:19,vol:24,cap:'大',turn:'中',holds:'腾讯·阿里·美团·小米',fit:'看好中概估值修复',view:'南向资金在进,估值便宜',eq:[0,4,9,7,15,22,26,31]},
+ {key:'contrarian',emoji:'🔄',name:'困境反转 Agent',cat:'跨市场/特殊',desc:'超跌/边际改善的逆向投资',m30:4.7,risk:'高',hot:27,y1:16,win:51,ir:0.8,mdd:23,vol:26,cap:'中',turn:'中',holds:'地产/消费等困境反转标的',fit:'别人恐惧我贪婪的逆向型',view:'专挑被市场抛弃、但基本面在边际改善的,赔率高但要耐心',eq:[0,-3,2,-2,5,9,12,16]},
+ {key:'dividend',emoji:'💰',name:'高股息红利 Agent',cat:'防御/红利',desc:'银行/电力/运营商/煤炭,防御压舱',m30:2.2,risk:'低',hot:39,y1:11,win:66,ir:1.7,mdd:7,vol:9,cap:'大',turn:'低',holds:'工商银行·长江电力·中国神华·中国移动',fit:'求稳收息、厌恶大波动',view:'不指望暴富,赚的是稳稳的股息+低波动,熊市里的压舱石',eq:[0,2,3,3,5,7,9,11]},
+ {key:'agri',emoji:'🌾',name:'农业 Agent',cat:'周期/资源',desc:'农产品/种子/化肥,抗通胀+地缘',m30:-8.1,risk:'中',hot:14,y1:-5,win:47,ir:0.4,mdd:16,vol:18,cap:'中',turn:'低',holds:'牧原股份·北大荒·隆平高科',fit:'逆向、抗通胀配置',view:'天气和需求最近都不配合,这阵确实在亏',eq:[0,2,-1,1,-3,-2,-6,-5]},
+ {key:'crypto',emoji:'₿',name:'加密 Agent',cat:'加密',desc:'比特币/以太坊/链上,高波动',m30:-5.4,risk:'极高',hot:48,y1:28,win:52,ir:1.0,mdd:35,vol:55,cap:'中',turn:'高',holds:'BTC·ETH·Coinbase·MicroStrategy',fit:'高风险高波动承受者',view:'资金费率偏高、太挤,我在减',eq:[0,10,18,9,22,30,24,28]},
+ {key:'stable',emoji:'🪙',name:'稳定币 & RWA Agent',cat:'加密',desc:'稳定币/牌照/支付/资产代币化',m30:5.1,risk:'高',hot:53,y1:26,win:55,ir:1.0,mdd:24,vol:38,cap:'中',turn:'中',holds:'Circle·Coinbase·连连数字·众安在线',fit:'看好加密合规化、支付革命',view:'稳定币立法+牌照是真催化,但题材鱼龙混杂,我只买有牌照/真业务的',eq:[0,8,4,14,10,18,22,26]}];
+const WPRESETS=[[50,30,20],[34,33,33],[20,30,50]];
+function teamView(){const picked=THEMES.filter(t=>t.picked),wsum=picked.reduce((s,t)=>s+t.w,0)||1,blended=(picked.reduce((s,t)=>s+t.m30*t.w,0)/wsum).toFixed(1),col=k=>k==='ai'?'var(--acc)':k==='metal'?'var(--gold)':k==='allweather'?'var(--blue)':k==='power'?'var(--warn)':'var(--vio)';
+ return `<div class="card"><div class="muted" style="font-size:12.5px">${NAME} 是你的<b>总管</b>:帮你像挑主题基金一样挑 agent,组成一支替你管钱的战队。<b>不同 agent 擅长不同行业,没人能一直赢——你挑你看好的,方向盘在你手里。</b></div></div>
+ <div class="card hl"><div class="row between"><b>🧑‍✈️ 你的 Agent 战队(${picked.length})</b><span class="tag ${blended>=0?'acc':'bad'}">近30天 ${blended>0?'+':''}${blended}%(加权)</span></div>
+   <div class="bar" style="height:14px;display:flex;margin:10px 0">${picked.map(t=>`<i style="width:${(t.w/wsum*100).toFixed(0)}%;background:${col(t.key)}"></i>`).join('')}</div>
+   ${picked.map(t=>`<div class="li"><div class="ic">${t.emoji}</div><div style="flex:1"><div class="row between"><b style="font-size:12.5px">${t.name}</b><span class="${t.m30>=0?'up':'down'}" style="font-weight:700">${t.m30>0?'+':''}${t.m30}%</span></div><div class="mut3">权重 ${(t.w/wsum*100).toFixed(0)}% · 风险 ${t.risk}</div></div></div>`).join('')}
+   <div class="row" style="gap:8px;margin-top:10px"><button class="ghost" onclick="cycleWeights()">⚖️ 调整权重</button><button class="cta" onclick="go('gallery')">＋ 去广场挑更多</button></div></div>
+ <div class="card" style="border-color:rgba(255,107,107,.3)"><div class="row">${av()}<b style="font-size:13px">🚨 总管提醒:小心你的战队"假分散"</b></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px">AI 主题、电力、TMT、加密 这些其实都吃<b>同一个 AI 故事</b>——堆再多也是押一个方向。真想分散,得配点<b>全天候/贵金属/农业</b>这种不相关的。(你现在配了全天候和贵金属,做得不错。)</div></div>
+ <div class="card"><div class="row between"><div class="mut3" style="font-size:12.5px">🧠 当前战队风格:<b style="color:var(--tx)">${styleFromPref()}</b> ${PREF.n?'← 来自你的刷卡偏好':'(刷几张卡我就懂你)'}</div><span class="lnk" onclick="go('memory')">记忆›</span></div></div>
+ ${(function(){const e=Object.entries(PREF.themes).sort((a,b)=>b[1]-a[1]).find(([k])=>{const t=THEMES.find(x=>x.key===k);return t&&!t.picked;});if(!e)return '';const t=THEMES.find(x=>x.key===e[0]);return `<div class="card"><div class="mut3" style="font-size:12.5px">你最近常右滑<b>${t.name.replace(' Agent','')}</b>,但战队里还没它——<span class="lnk" onclick="go('gallery')">去广场加一个?</span></div></div>`;})()}
+ <div class="card gold"><div class="muted" style="font-size:12.5px">😌 <b>放轻松</b>:你选的主题,<b>赚了是你眼光好</b>;亏了,换一个 agent 就是,别跟自己过不去。这就是按主题选 agent 的好处——你掌方向,我负责把每个主题做到最好、还诚实告诉你它现在行不行。</div></div>`;}
+function cycleWeights(){WPRESET=(WPRESET+1)%WPRESETS.length;const ks=['ai','metal','allweather'],w=WPRESETS[WPRESET];ks.forEach((k,i)=>{const t=THEMES.find(x=>x.key===k);if(t)t.w=w[i];});go('agent');}
+V.gallery=()=>{const pk=Object.keys(PREF.themes).filter(k=>PREF.themes[k]>0);
+ const incat=t=>AGENTCAT==='全部'||t.cat===AGENTCAT;
+ const list=[...THEMES].filter(incat).sort((a,b)=>(pk.includes(b.key)?1:0)-(pk.includes(a.key)?1:0));
+ const feat=THEMES.filter(t=>t.featured);
+ return `<div class="lnk" onclick="AGENTMODE='team';go('agent')">‹ 返回我的战队</div>
+ <h1 style="padding-top:6px">Agent 广场 🛒</h1>
+ <div class="sub">像挑主题基金一样挑 agent,<b>点格子看胜率/回撤/持仓等基金经理级信息</b>。战绩诚实——有的在赚,有的在亏。${pk.length?'<b style="color:var(--acc)">🎯 已按你刷卡口味标注推荐。</b>':''}</div>
+ ${AGENTCAT==='全部'?`<div class="k" style="margin:2px 2px 8px">✨ 平台特色</div><div class="atiles" style="grid-template-columns:1fr 1fr;margin-bottom:6px">${feat.map(t=>tileCard(t,pk.includes(t.key))).join('')}</div><div class="mut3" style="margin:0 2px 12px">🔩 AI 瓶颈=专挑最卡脖子的环节 · 🌐 欧美映射=海外热点的 A 股/港股影子股</div>`:''}
+ <div class="wrap2" style="margin-bottom:12px">${ACATS.map(c=>`<span class="chip ${AGENTCAT===c?'on':''}" onclick="AGENTCAT='${c}';go('gallery')">${c}</span>`).join('')}</div>
+ <div class="atiles">${list.map(t=>tileCard(t,pk.includes(t.key))).join('')}</div>
+ <div class="note">📈 指标均为演示假数据,非投资建议、非收益承诺。没有 agent 能一直赢;按主题分散、亏了换一个,正是这套玩法的设计初衷。</div>`;};
+function rc(r){return r==='低'?'var(--blue)':r==='中'?'var(--gold)':r==='极高'?'var(--bad)':'var(--warn)';}
+function tileCard(t,rec){return `<div class="tile ${rec?'rec':''}" onclick="openAgent('${t.key}')">${rec?'<span class="star">🎯</span>':''}<span class="rd" style="background:${rc(t.risk)}"></span><span class="em">${t.emoji}</span><span class="tn">${t.name.replace(' Agent','')}</span><span class="tm ${t.m30>=0?'up':'down'}">${t.m30>0?'+':''}${t.m30}%</span></div>`;}
+function eqSpark(eq,h){const w=300,mn=Math.min(...eq),mx=Math.max(...eq),rg=(mx-mn)||1,sx=w/(eq.length-1),sy=v=>h-6-((v-mn)/rg)*(h-12),col=eq[eq.length-1]>=0?'#ff8a3d':'#ff6b6b';
+ const p=eq.map((v,i)=>`${i?'L':'M'}${(i*sx).toFixed(0)},${sy(v).toFixed(1)}`).join(' ');
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%"><path d="${p}" fill="none" stroke="${col}" stroke-width="2"/></svg>`;}
+function openAgent(k){const t=THEMES.find(x=>x.key===k),gain=t.m30>=0;
+ $('#adrawerbody').innerHTML=`<div class="row between"><div class="row"><div class="ic" style="font-size:22px">${t.emoji}</div><div><b style="font-size:15px">${t.name}</b><div class="mut3">${t.cat}${t.featured?' · ✨平台特色':''}</div></div></div><span class="lnk" onclick="closeAgent()">关闭</span></div>
+ <div class="muted" style="margin:10px 0;font-size:12.5px">${t.desc}</div>
+ <div class="wrap2" style="margin-bottom:8px"><span class="tag ${gain?'acc':'bad'}">${gain?'🟢 当前在赚':'🔴 当前回撤'} · 近30天 ${t.m30>0?'+':''}${t.m30}%</span><span class="pill">风险 ${t.risk}</span><span class="pill">🫧 ${t.hot}% 的人选了</span></div>
+ <div class="k" style="margin:6px 0 3px">历史胜率(它的提示/调仓事后对的比例)</div>
+ <div class="gaugebar"><i style="width:${t.win}%;background:${t.win>=58?'var(--acc)':t.win>=50?'var(--warn)':'var(--bad)'}"></i></div>
+ <div class="mut3" style="margin-bottom:8px"><b style="color:var(--tx)">${t.win}%</b> · 50% 上下是抛硬币,越高越说明有真本事</div>
+ <div class="mrow">
+   <div class="mcell"><div class="ck">近1年</div><div class="cv ${t.y1>=0?'up':'down'}">${t.y1>0?'+':''}${t.y1}%</div></div>
+   <div class="mcell"><div class="ck">信息比 IR</div><div class="cv">${t.ir}</div></div>
+   <div class="mcell"><div class="ck">最大回撤</div><div class="cv down">-${t.mdd}%</div></div>
+   <div class="mcell"><div class="ck">年化波动</div><div class="cv">${t.vol}%</div></div>
+   <div class="mcell"><div class="ck">容量</div><div class="cv">${t.cap}</div></div>
+   <div class="mcell"><div class="ck">换手</div><div class="cv">${t.turn}</div></div></div>
+ <div class="mut3" style="margin:2px 0 8px">IR 越高=单位风险赚得越多(>1 算好);最大回撤=最惨从高点跌多少;容量=能装多少钱还不走样</div>
+ <div class="k" style="margin:8px 0 2px">近一年净值走势</div><div class="card" style="margin:0;padding:8px 10px">${eqSpark(t.eq,54)}</div>
+ <div class="k" style="margin:12px 0 6px">代表持仓 / 关注标的</div><div class="wrap2">${t.holds.split('·').map(h=>`<span class="pill">${h}</span>`).join('')}</div>
+ <div class="card" style="margin:12px 0 0;background:rgba(217,154,91,.06);border-color:rgba(217,154,91,.25)"><div class="row" style="margin-bottom:4px">${av()}<b style="font-size:12px">它现在的观点</b></div><div class="muted" style="font-size:12.5px">${t.view}</div></div>
+ <div class="mut3" style="margin:10px 0 4px">👤 适合谁:${t.fit}</div>
+ <div class="note" style="border:none;padding-top:6px">⚠️ 没有 agent 能一直赢——${gain?'它现在顺风,但也会有回撤':'它现在在回撤,很正常:赚了是你眼光、亏了换一个'}。</div>
+ <button class="${t.picked?'ghost':'cta'}" style="margin-top:12px" onclick="togglePick('${k}');openAgent('${k}')">${t.picked?'✓ 已在战队(点击移出)':'＋ 选进我的战队'}</button>
+ <button class="ghost" style="margin-top:8px" onclick="closeAgent();AGENTMODE='team';go('agent')">去我的战队看组合 →</button>`;
+ $('#adrawer').classList.add('show');}
+function closeAgent(){$('#adrawer').classList.remove('show');}
+function togglePick(k){const t=THEMES.find(x=>x.key===k);t.picked=!t.picked;if(t.picked&&!t.w)t.w=15;go('gallery');}
+function autoView(){
+ if(!MANAGEON) return `<div class="card hl"><div class="row">${av()}<b style="font-size:14px">让 ${NAME} 替你自动管一部分钱</b></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px">不是躺赚、不预测暴富。它替你做<b>你懒得做、又最容易做错</b>的纪律活:该减就减、止盈止损、跌多了上对冲、不追高不踏空——靠<b>少犯错</b>长期赚。全程在你的规矩里,先用模拟盘。</div>
+   <div class="k" style="margin:6px 0">给它多少额度(模拟)</div><div class="wrap2" style="margin-bottom:8px"><span class="pill on">¥5 万</span><span class="pill">¥10 万</span><span class="pill">¥20 万</span></div>
+   <div class="k" style="margin:6px 0">什么风格</div><div class="wrap2" style="margin-bottom:12px"><span class="pill">稳健防守</span><span class="pill on">均衡</span><span class="pill">积极</span></div>
+   <button class="cta" onclick="MANAGEON=true;go('agent')">开启模拟托管(零风险)</button>
+   <div class="flag" style="margin-top:10px">🛑 它<b>永不加杠杆、永不全仓、永不碰你拉黑的票、永不转账提现</b>;单日亏到刹车线立刻停;你随时一键全平+收回。</div></div>`;
+ return `<div class="card" style="border-left:3px solid var(--acc)"><div class="row between"><div><b>🤖 ${NAME} 正替你自动管钱</b><div class="mut3">模拟托管 · 第 4 天 · 均衡风格</div></div><span class="tag acc">运行中</span></div>
+   <div class="muted" style="margin-top:8px;font-size:12px">它赚的是"纪律的钱":不情绪化、7×24 盯、该动手时不手软。不保证每天涨,保证不乱来。</div></div>
+ <div class="card" onclick="AGENTMODE='team';go('agent')" style="cursor:pointer;border-color:rgba(255,138,61,.25)"><div class="row between"><div><b style="font-size:12.5px">🧑‍✈️ 替你管钱的是你的战队</b><div class="mut3">AI 50% · 贵金属 30% · 全天候 20%</div></div><span class="lnk">管理战队 ›</span></div></div>
+ <div class="row" style="gap:8px"><div class="card" style="flex:1;margin:0"><div class="k">托管额度</div><div class="big" style="font-size:18px">¥5万</div><div class="mut3">模拟</div></div>
+   <div class="card" style="flex:1;margin:0"><div class="k">今日</div><div class="big up" style="font-size:18px">+0.6%</div></div>
+   <div class="card" style="flex:1;margin:0"><div class="k">启用至今</div><div class="big up" style="font-size:18px">+5.8%</div><div class="mut3">含3个跌日</div></div></div>
+ <div class="card"><div class="k" style="margin-bottom:6px">📈 它管的钱 vs 死拿不动</div>${eqCurve()}
+   <div class="wrap2" style="font-size:11px;color:var(--tx3);margin-top:6px"><span style="color:var(--acc)">━ 它管的 +5.8%</span><span>┄ 买入持有 +4.2%</span><span style="color:var(--vio)">● 它的动作</span></div>
+   <div class="mut3" style="margin-top:6px">说句实话:它不是每段都赢——第 3、5 天它跑输了死拿,因为先上了对冲。长期靠少亏大的赚回来。</div></div>
+ <div class="card"><div class="k" style="margin-bottom:8px">⚡ 它今天自动做的(都有理由、可撤销)</div>
+   <div class="li"><div class="ic">✂️</div><div style="flex:1"><b style="font-size:12.5px">自动减了 NVDA 2%</b><div class="mut3">触发你"单只≤20%" → 已减</div></div><span class="lnk">撤销</span></div>
+   <div class="li"><div class="ic">🛡️</div><div style="flex:1"><b style="font-size:12.5px">上了一层对冲</b><div class="mut3">市场波动跳升,按均衡风格防一手</div></div><span class="lnk">撤销</span></div>
+   <div class="li"><div class="ic">💰</div><div style="flex:1"><b style="font-size:12.5px">止盈了一笔小仓</b><div class="mut3">到了你设的止盈线,落袋</div></div><span class="lnk">撤销</span></div></div>
+ <div class="card"><div class="k" style="margin-bottom:6px">🧮 本周 +2.1% 怎么来的(诚实归因)</div>
+   <div class="li" style="padding:7px 0"><div style="flex:1">再平衡 / 不追高</div><b class="up">+1.4%</b></div>
+   <div class="li" style="padding:7px 0"><div style="flex:1">止盈落袋</div><b class="up">+1.0%</b></div>
+   <div class="li" style="padding:7px 0"><div style="flex:1">对冲成本(这周没跌,白买了保险)</div><b class="down">−0.3%</b></div></div>
+ <div class="card" style="border-color:rgba(255,107,107,.3)"><div class="k" style="margin-bottom:8px">🛑 它绝不会做 + 现在的安全余量</div>
+   <div class="wrap2" style="margin-bottom:8px"><span class="pill">永不加杠杆</span><span class="pill">永不全仓</span><span class="pill">永不碰拉黑票</span><span class="pill">永不转账提现</span></div>
+   <div class="mut3">亏损刹车:离"单日 −5% 自动停手"还剩 <b style="color:var(--good)">3.2%</b> 余量</div>
+   <div class="bar" style="margin-top:6px"><i style="width:36%;background:var(--good)"></i></div>
+   <div class="mut3" style="margin-top:8px">大跌预案:跌的时候它<b>只会减仓/对冲,绝不擅自抄底加仓</b> —— 除非你单独授权。</div>
+   <button class="kill" style="margin-top:10px" onclick="MANAGEON=false;go('agent')">🛑 一键全平 · 收回托管授权</button></div>
+ <div class="card gold"><b>它在你的钱上证明过了 →</b><div class="mut3" style="margin:4px 0 10px">模拟托管 4 天 +5.8%、避开 1 次追高、守住所有规矩。要不要让它管真钱?(真实托管按规模友好计费,随时可停)</div>
+   <button class="pro" onclick="openProAuto()">让它管真钱(看 Pro)</button></div>`;}
+function eqCurve(){const m=[0,0.6,0.4,1.2,0.9,2.1,2.6,3.4,4.3,5.8],bch=[0,0.9,0.6,1.6,0.3,2.4,2.2,3.8,3.2,4.2],w=300,h=92,n=m.length,sx=w/(n-1),sy=v=>h-8-(v/6)*(h-16),pth=a=>a.map((v,i)=>`${i?'L':'M'}${(i*sx).toFixed(0)},${sy(v).toFixed(1)}`).join(' ');
+ const dots=[2,4,7].map(i=>`<circle cx="${(i*sx).toFixed(0)}" cy="${sy(m[i]).toFixed(1)}" r="3.5" fill="#9d8cff"/>`).join('');
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%"><path d="${pth(bch)}" fill="none" stroke="#3a4658" stroke-width="1.5" stroke-dasharray="3 3"/><path d="${pth(m)}" fill="none" stroke="#ff8a3d" stroke-width="2"/>${dots}</svg>`;}
+function workView(){return `
+ <div class="card"><div class="k" style="margin-bottom:8px">交给 ${NAME} 一件事</div>
+   <input placeholder="比如:比特币不挤了就告诉我" onfocus="this.blur();addTask()"/>
+   <div class="wrap2" style="margin-top:10px"><span class="chip" onclick="addTask()">盯AI仓,破80%提醒并拟对冲</span><span class="chip" onclick="addTask()">比特币不挤了告诉我</span><span class="chip" onclick="addTask()">我要追高时拦我</span></div></div>
+ ${PENDING?`<div class="card hl"><div class="row between"><b>📝 ${NAME}替你拟好了一单,等你点头</b><span class="tag warn">待确认</span></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px">给 AI 仓加 <b>1.5%</b> 的"防大跌"保险。理由:你押 AI 太重、现在保险便宜;到点会提醒你。${PAPER?'<b>(模拟盘,零风险)</b>':''}</div>
+   <div class="row" style="gap:8px"><button class="cta" onclick="doPending(1)">确认,交给${NAME}办</button><button class="ghost" onclick="doPending(0)">先不要</button></div></div>`:''}
+ <h2>🤖 ${NAME}正替你干的</h2>
+ ${TASKS.map(t=>`<div class="card work"><div class="row between"><b style="font-size:12.5px">${t.t}</b>${t.p<100?'<span class="tag warn">进行中</span>':'<span class="tag acc">已完成</span>'}</div>
+   <div class="mut3" style="margin:6px 0">${t.s}</div><div class="bar"><i style="width:${t.p}%;background:${t.p<100?'var(--warn)':'var(--acc)'}"></i></div></div>`).join('')}
+ <h2>📜 ${NAME}趁你不在替你做过的</h2>
+ <div class="card">${FEED.map(f=>`<div class="li"><div class="ic">${f.c==='good'?'✅':f.c==='warn'?'🛡️':'🔔'}</div><div style="flex:1"><div class="mut3" style="color:var(--tx2);font-size:12.5px">${f.t}</div><div class="mut3" style="margin-top:2px">${f.d}</div></div></div>`).join('')}</div>
+ <h2>🎚 让 ${NAME} 自动做到哪一步</h2>
+ <div class="card"><div class="dial" id="dial"><button class="${AUTO===0?'on':''}" onclick="setAuto(0)">只出主意</button><button class="${AUTO===1?'on':''}" onclick="setAuto(1)">写好等我点</button><button class="locked" onclick="setAuto(2)">规矩内自动 🔒</button></div>
+   <div class="muted" id="autod" style="margin-top:10px;font-size:12.5px"></div>
+   <div class="flag">🛑 <b>亏损刹车</b>:它最多动用你授权的额度,<b>单日亏到 5% 立刻停手</b>;不转账、不提现。</div>
+   <div class="flag">🧪 不放心?<b>先让它在模拟盘做满一周</b>给你看,你再决定要不要给它真权限。</div>
+   <button class="kill" style="margin-top:10px">🛑 一键停手 · 收回所有授权</button></div>
+ <div class="lnk" style="display:block;text-align:center;margin-top:12px" onclick="go('rules')">⚙️ 设定我的规矩(它只在这里面动手)→</div>`;}
+function chatView(){return `<div id="chat"><div class="msg ray"><div class="who">${av()}<b>${NAME}</b><span class="tag vio" style="margin-left:auto">把握 一般</span></div>
+   你这组合真正的风险不是哪只票,是<b>太集中</b>。对了,上次你也是这个点位手痒,记得吗?这次我陪你慢慢看。想从哪聊?</div></div>
+ <div class="k" style="margin:12px 0 8px">试试问</div>
+ <div class="wrap2"><span class="chip" onclick="ask('risk')">我最大的风险是啥?</span><span class="chip" onclick="ask('btc')">比特币能加仓吗?</span><span class="chip" onclick="ask('beat')">你跟 ChatGPT 啥区别?</span></div>`;}
+const ANS={risk:{c:'较大',t:`你最大的风险是<b>"看着分散其实没分散"</b>:几只看着不一样,其实一起押 AI,真出事一起跌。`,r:`怎么算:看每个持仓平时跟 AI 板块涨跌多同步,按仓位加;你对利率也偏敏感,容易两头挨打。`,w:`我可能错在哪:要是 AI 还在往上冲,这种集中反而是你赚钱的地方。集中不等于错,但你得知道自己在集中。`},
+ btc:{c:'一般',t:`短期不建议追,现在<b>赌涨的人太多太挤</b>,赔率不划算。`,r:`依据:赌涨的人太多+你已有 16% 加密。提醒时机,不是说它要跌。`,w:`我可能错在哪:有新钱进场,挤的行情也能继续涨。只是一般把握。`},
+ beat:{c:'较大',t:`三点:① 我对着你<b>真实持仓</b>答;② 每条在<b>好几种行情考过</b>、把赚赔摆给你看;③ 我<b>会说"不知道"</b>,还能在你规矩内替你动手。`,r:`普通大模型给不了:照着你持仓看出隐藏风险、看多少人扎堆、能查的成绩单、还能替你干活。`,w:`我可能错在哪:我不是神,市场很多东西本就猜不准。我让你少瞎少犯傻少孤独,不保证你赢。`}};
+function ask(k){const c=$('#chat'),a=ANS[k],q={risk:'我最大的风险是啥?',btc:'比特币能加仓吗?',beat:'你跟 ChatGPT 啥区别?'}[k];
+ c.insertAdjacentHTML('beforeend',`<div class="msg me">${q}</div>`);const id='r'+Math.floor(performance.now());
+ c.insertAdjacentHTML('beforeend',`<div class="msg ray"><div class="who">${av()}<b>${NAME}</b><span class="tag ${a.c==='较大'?'acc':'blue'}" style="margin-left:auto">把握 ${a.c}</span></div>${a.t}
+  <div style="margin-top:6px"><span class="lnk" onclick="$('#${id}').classList.toggle('show')">▸ 看${NAME}凭什么这么说</span></div>
+  <div class="reason" id="${id}">${a.r}</div><div class="wrong">🤔 ${a.w}</div></div>`);$('#scroll').scrollTop=$('#scroll').scrollHeight;}
+
+/* ---------- 我的 + 子页(第3轮) ---------- */
+V.me=()=>`<h1>我的 ☰</h1>
+ <div class="vs"><div><div class="mut3">别的 app</div><div style="font-size:12.5px;margin-top:4px">给你一堆<b>信息</b>,看完还是你自己抓瞎</div></div>
+   <div style="border-color:var(--acc)"><div class="lnk" style="cursor:default">${NAME}</div><div style="font-size:12.5px;margin-top:4px">替你<b>盯着、把关、还能动手</b>,亏钱时陪着你</div></div></div>
+ <div class="card"><div class="row between"><div><b>自律分 84</b> <span class="up">↑12</span><div class="mut3">这个月 ${NAME} 拦下你 3 次破规矩</div></div><button class="ghost" style="width:auto;padding:8px 12px" onclick="openShareDisc()">🛡️ 晒自律</button></div></div>
+ ${meRow('🧠','${NAME} 对你的记忆'.replace('${NAME}',NAME),'它记住的关于你 · 怎么改变它帮你投','memory')}
+ ${meRow('🛡️','跟练战队 & 拥挤度','比自律不比收益 · 帮你躲开扎堆','squad')}
+ ${meRow('🎯','我的规矩','它只在你定的护栏里动手','rules')}
+ ${meRow('⊞','持仓透视','看穿你其实在押什么','xray')}
+ ${meRow('◐','它准不准 · 成绩单','它说过→后来咋样,可回看','score')}
+ ${meRow('🔒','钱安全吗','它怎么连账户 · 为什么不会跑路','safety')}
+ ${meRow('⚠','它哪里不行','肯认怂的才值得信','limits')}
+ <div class="card gold"><div class="row between"><div><b>⚡ Freeride Pro</b><div class="mut3">只解锁"让它替你自动动手"</div></div><span class="tag gold">¥38/月</span></div>
+   <button class="pro" style="margin-top:10px" onclick="openSettle()">看陪练第 7 天成果,再决定</button></div>
+ <div class="note">${PAPER?'🟢 现在是模拟陪练':'🔴 实盘'} · 提醒/盯盘/找机会/聊天永远免费</div>`;
+function meRow(ic,t,s,v){return `<div class="card" onclick="go('${v}')" style="cursor:pointer"><div class="row"><div class="ic">${ic}</div><div style="flex:1"><b>${t}</b><div class="mut3">${s}</div></div><span class="mut3">›</span></div></div>`;}
+V.rules=()=>`<h1>我的规矩 🎯</h1><div class="sub">${NAME}<b>只在你定的这些护栏里</b>动手,越界立刻停。你说了算。</div>
+ <div class="card"><div class="li"><div style="flex:1"><b>单只不超过</b><div class="mut3">超了就提醒/帮你减</div></div><span class="pill on">20%</span></div>
+   <div class="li"><div style="flex:1"><b>单日亏损到这就停手</b><div class="mut3">亏损刹车</div></div><span class="pill on">-5%</span></div>
+   <div class="li"><div style="flex:1"><b>自动动手的额度上限</b><div class="mut3">它最多动这么多钱</div></div><span class="pill on">仓位 10%</span></div>
+   <div style="margin-top:10px"><div class="k" style="margin-bottom:8px">拉黑的票(它永远不碰)</div><div class="wrap2"><span class="pill on">某妖股 ✕</span><span class="pill">+ 添加</span></div></div></div>
+ <div class="note">这些是演示用的开关。真产品里你能逐条调,改完${NAME}立刻照新规矩来。</div>`;
+V.safety=()=>`<h1>钱安全吗 🔒</h1><div class="sub">让 AI 碰钱,你该担心。所以把话挑明——</div>
+ <div class="card"><div class="li"><div class="ic">👀</div><div><b>只读授权 + 你给的下单权限</b>,走券商<b>官方通道</b>,我们碰不到你的账号密码。</div></div>
+   <div class="li"><div class="ic">🚫</div><div><b>永远不能转账、不能提现。</b>它只能在你的账户里买卖你授权的东西,钱出不去。</div></div>
+   <div class="li"><div class="ic">🛑</div><div><b>随时一键收回授权</b>,立刻停手;单日亏损刹车也一直开着。</div></div>
+   <div class="li"><div class="ic">🧾</div><div><b>它做的每一步都留痕</b>,你随时能查、能复盘。</div></div></div>
+ <div class="card"><div class="k" style="margin-bottom:8px">🔔 只有这些才会推送打扰你</div>
+   <div class="wrap2"><span class="pill on">破了你的规矩</span><span class="pill on">拟好单等你点</span><span class="pill on">你关心的条件触发了</span><span class="pill">日常涨跌(默认不推)</span></div>
+   <div class="mut3" style="margin-top:8px">乱推会让你卸载,所以默认<b>只推真要紧的</b>。你也能自己改。</div></div>`;
+V.xray=()=>`<h1>持仓透视 ⊞</h1><div class="sub">不只看你买了什么,还看你<b>其实在押什么</b>。</div>
+ <div class="card">${PF.map(p=>`<div class="li"><div class="ic">${p.t==='现金'?'💵':'📈'}</div><div style="flex:1"><div class="row between"><b>${p.n}</b><div class="row" style="gap:10px"><span class="muted">${p.w}%</span>${sign(p.d)}</div></div><div class="bar" style="margin-top:6px"><i style="width:${p.w*3}%;background:linear-gradient(90deg,var(--acc),var(--blue))"></i></div></div></div>`).join('')}</div>
+ <h2>🧬 你其实在押的方向 <span class="tag bad">重点</span></h2>
+ <div class="card">${FACTORS.map((f,i)=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)"><div class="row between"><b style="font-size:12.5px">${f.f} <span class="method" onclick="$('#m${i}').classList.toggle('show')">怎么算的</span></b><span style="color:${cc[f.c]};font-weight:700">${f.v}%</span></div><div class="bar" style="margin:7px 0"><i style="width:${f.v}%;background:${cc[f.c]}"></i></div><div class="mut3">${f.note}</div><div class="tip" id="m${i}">${f.hint}</div></div>`).join('')}
+   <div class="muted" style="margin-top:12px;background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.2);padding:9px 11px;border-radius:11px">⚡ 你以为买了 5 样,其实 71% 是<b>同一个赌注</b>。不是叫你卖,是让你<b>心里有数</b>。</div></div>`;
+V.score=()=>`<h1>它准不准 · 成绩单 ◐</h1><div class="sub">${NAME}说过的话,<b>它说过→后来咋样</b>,一条条摊给你看。</div>
+ <h2>🕑 它说过 → 后来</h2>
+ <div class="card">${TIMELINE.map(x=>`<div class="tl"><div class="dotc" style="background:${cc[x.c]}"></div><div style="flex:1"><div class="muted" style="font-size:12.5px">${x.t}</div><div class="mut3" style="margin-top:2px">${x.d}</div></div></div>`).join('')}</div>
+ <div class="card" style="border-color:rgba(255,180,84,.3)"><div class="muted" style="font-size:12.5px">⏳ 你才陪练第 3 天。等练满 7 天,这些就全是<b>它在你身上</b>的兑现记录。下面的总数现在还掺着它在别人那的历史——这话也直说。</div></div>
+ <div class="row" style="gap:10px"><div class="card" style="flex:1;margin:0"><div class="k">说对比例</div><div class="big">58%</div></div><div class="card" style="flex:1;margin:0"><div class="k">给过/采纳</div><div class="big" style="font-size:19px">124/41</div></div><div class="card" style="flex:1;margin:0"><div class="k">说"不知道"</div><div class="big up">17次</div></div></div>
+ <div class="card"><div class="calib">📐 ${NAME}说六成把握的事,过去真有 58% 发生 —— 不吹不黑。</div></div>`;
+V.limits=()=>`<h1>它哪里不行 ⚠</h1><div class="sub"><b>故意</b>放这儿。肯认怂的帮手,才敢把事交给它。</div>
+ <div class="card"><div class="li"><div class="ic">🚫</div><div><b>不保证你赚钱、不承诺收益。</b>让你少瞎、少犯傻、少孤独,不是保证你赢。</div></div>
+   <div class="li"><div class="ic">🚫</div><div><b>不是投资建议。</b>扣扳机是你(或你授权它在规矩内动手)。</div></div>
+   <div class="li"><div class="ic">🤷</div><div><b>没把握时直说"不知道"。</b>这个月 17 次,这是它最值钱的地方。</div></div>
+   <div class="li"><div class="ic">⏱</div><div><b>不碰拼速度的超快交易。</b>那是另一套玩法。</div></div></div>`;
+
+/* ---------- 热点(聚合各路高手 + 小道消息 + AI 点评) ---------- */
+const HOT=[
+ {cat:'科技',mine:true,src:'180k',hot:5,rumor:false,conf:'中',title:'传英伟达下季度产能再上调 15%',take:'供应链订单能见度拉满,圈里看多到年底',ai:'跟你关系很大——你 24% 在 NVDA。若属实是利好,但已被 price in 不少,别在高位追。你本来就押 AI 太重(71%),这条更像"别慌着加",不是"快上车"。'},
+ {cat:'宏观',mine:true,src:'宏观交易员',hot:4,rumor:false,conf:'中',title:'市场押注 Fed 下次降息概率升到 70%',take:'美债收益率回落,情绪转 risk-on',ai:'你组合对利率敏感度 44——真降息利好你的成长股。但"押注 70%"≠会发生,这种押注过去落空过,别提前 all in。'},
+ {cat:'美股',mine:true,src:'东京交易厅',hot:3,rumor:false,conf:'中',title:'特斯拉交付数据本周公布,多空分歧巨大',take:'两边都很坚定,赌的是预期差',ai:'你持有特斯拉(12%)。这种"分歧巨大"的事件往往波动大、方向难猜——我猜不准数据,但能帮你管"万一":去日历看看要不要事件前减一点。'},
+ {cat:'商品',src:'宏观交易员',hot:3,rumor:false,conf:'中',title:'黄金再创新高,避险情绪升温',take:'央行持续买入 + 实际利率下行',ai:'你没有黄金。但注意:黄金涨常和"市场开始怕了"同步——这跟你那个"防大跌保险"的逻辑一致,可以一起看。'},
+ {cat:'港股',mine:true,src:'杰克船长',hot:4,rumor:false,conf:'中',title:'南向资金大幅流入港股科技',take:'估值洼地 + 资金面改善',ai:'跟你的中概(KWEB 14%)沾边,利好。但这块本来就是你唯一的分散——顺势别砍它,跟我之前提醒一致。'},
+ {cat:'A股',src:'聚义厅',hot:3,rumor:false,conf:'低',title:'某行业政策预期发酵,板块异动',take:'政策催化,游资活跃',ai:'你 A 股敞口不大。这类"政策预期"快进快出、容易被套——不在能力圈就看戏不下场。'},
+ {cat:'小道消息',mine:true,rumor:true,plat:'脉脉·匿名',gua:5,cred:'2 成熟,别当真',spread:'已转疯 · 2.4w 讨论',rel:true,title:'传某顶级基金"清了大半英伟达"',ai:'⚠️ 这瓜跟你关系最大(你 24% NVDA),可来源最不靠谱(脉脉匿名)。我只给 2 成熟——千万别因为一条匿名爆料就割肉。要不要我替你蹲着,等 13F 真出来再说?'},
+ {cat:'小道消息',rumor:true,plat:'群聊截图',gua:4,cred:'3 成熟',spread:'多个群在传',rel:false,title:'传某新能源龙头被大客户砍单',ai:'🚨 截图无法核实、二手转述,3 成熟。你持仓没直接相关,先当瓜吃。我可以盯着,有官方动静第一个告诉你。'},
+ {cat:'小道消息',rumor:true,plat:'X/推特',gua:5,cred:'5 成熟,多信源',spread:'大V 都在转',rel:false,title:'传某大厂 AI 一号位要离职带队创业',ai:'这个可信度偏高——几个独立信源对上了。若真,短期利空老东家、利好人才外流方向。跟你持仓不直接相关,纯吃瓜。'},
+ {cat:'小道消息',rumor:true,plat:'雪球·股吧',gua:4,cred:'4 成熟',spread:'停牌+大宗异动对得上',rel:false,title:'传 A 公司溢价 40% 收购 B 公司',ai:'有点真——B 停牌+大宗异动对得上,但 40% 溢价存疑。你没持有这俩,纯吃瓜;真想玩并购套利是另一套高风险玩法。'},
+ {cat:'小道消息',rumor:true,plat:'微博热搜',gua:3,cred:'看个乐',spread:'冲上热搜',rel:false,title:'某网红 CEO 又双叒出新瓜',ai:'纯花边,跟基本面没关系——但这种情绪偶尔会短期影响股价。乐一乐就好,别当投资依据。'}];
+V.hot=()=>`<h1>热点 🔥</h1>
+  <div class="seg"><button class="${HOTMODE==='swipe'?'on':''}" onclick="HOTMODE='swipe';go('hot')">🃏 刷一刷</button><button class="${HOTMODE==='list'?'on':''}" onclick="HOTMODE='list';go('hot')">📰 列表</button></div>
+  ${HOTMODE==='swipe'?swipeView():hotListView()}`;
+function hotListView(){const cats=['我的持仓','全部','A股','美股','港股','宏观','商品','科技','小道消息'];
+ const mine=HOT.filter(h=>h.mine);let body;
+ if(HOTCAT==='我的持仓') body=`<div class="card" style="background:rgba(255,138,61,.06);border-color:rgba(255,138,61,.3)"><b>📌 只看和你持仓直接相关的(${mine.length})</b><div class="mut3" style="margin-top:3px">${NAME}从一堆热点里替你挑出真正关你事的,其余的别让它占你脑子</div></div>`+(mine.map(hotCard).join('')||'<div class="card mut3">暂无</div>');
+ else if(HOTCAT==='全部') body=`<div class="card" style="background:rgba(255,138,61,.06);border-color:rgba(255,138,61,.3)"><div class="row between"><b>📌 和你持仓直接相关 (${mine.length})</b><span class="lnk" onclick="HOTCAT='我的持仓';go('hot')">只看这些→</span></div></div>`+mine.map(hotCard).join('')+`<div class="k" style="margin:18px 2px 10px">🌍 其余全部热点</div>`+HOT.filter(h=>!h.mine).map(hotCard).join('');
+ else body=(HOT.filter(h=>h.cat===HOTCAT).map(hotCard).join(''))||'<div class="card mut3">这个分类暂时没有热点</div>';
+ return `<div class="sub">先看<b>📌 和你持仓相关</b>的,再吃瓜。<b>${NAME}给你瓜 + 锐评 + 判几成熟 + 关不关你的事</b>。</div>
+  <div class="wrap2" style="margin-bottom:14px">${cats.map(c=>`<span class="chip ${HOTCAT===c?'on':''}" onclick="HOTCAT='${c}';go('hot')">${c==='小道消息'?'🍉 吃瓜':c==='我的持仓'?'📌 我的持仓':c}</span>`).join('')}</div>
+  ${body}
+  <div class="note">瓜来自社媒,一律标"未证实"+ ${NAME} 评几成熟;真上线需做免责、走合规。</div>`;}
+const SWIPE=[
+ {ind:'AI / 算力',emoji:'🤖',type:'利好',theme:'ai',risk:1,src:'180k',title:'传英伟达产能再上调,供应链订单爆满'},
+ {ind:'美国电力',emoji:'⚡',type:'利好',theme:'power',risk:1,src:'宏观交易员',title:'AI 数据中心耗电激增,电网投资提速'},
+ {ind:'新能源车',emoji:'🚗',type:'利空',theme:'newprod',risk:1,src:'东京交易厅',title:'价格战再起,龙头毛利持续承压'},
+ {ind:'贵金属',emoji:'🥇',type:'利好',theme:'metal',risk:0,src:'宏观交易员',title:'央行持续买金,避险升温金价创新高'},
+ {ind:'加密',emoji:'₿',type:'小道消息',theme:'crypto',risk:2,rumor:true,src:'脉脉·未证实',title:'传某顶级基金清英伟达、转仓加密'},
+ {ind:'农业',emoji:'🌾',type:'利空',theme:'agri',risk:0,src:'雪球',title:'天气转好 + 需求平淡,农产品回落'},
+ {ind:'医药',emoji:'💊',type:'利好',theme:'pharma',risk:0,src:'聚义厅',title:'创新药出海获批,板块情绪回暖'},
+ {ind:'中概',emoji:'🐉',type:'利好',theme:'china',risk:1,src:'杰克船长',title:'南向资金大幅流入港股科技'},
+ {ind:'半导体设备',emoji:'🔧',type:'利好',theme:'ai',risk:1,src:'180k',title:'先进制程扩产,设备订单排到明年'},
+ {ind:'机器人',emoji:'🦾',type:'小道消息',theme:'newprod',risk:2,rumor:true,src:'X/推特',title:'传人形机器人要量产,供应链躁动'},
+ {ind:'银行/红利',emoji:'🏦',type:'利好',theme:'allweather',risk:0,src:'聚义厅',title:'高股息防御受捧,资金抱团避险'},
+ {ind:'石油/能源',emoji:'🛢️',type:'利空',theme:'power',risk:1,src:'宏观交易员',title:'OPEC 增产预期,油价短线承压'},
+ {ind:'人形机器人',emoji:'🦿',type:'利好',theme:'robot',risk:1,src:'东方财富',title:'十五五把具身智能列重点,机器人催化密集'},
+ {ind:'减肥药/创新药',emoji:'💉',type:'利好',theme:'innodrug',risk:1,src:'21财经',title:'GLP-1 减肥药放量,license-out 交易创新高'},
+ {ind:'固态电池',emoji:'🔋',type:'新闻',theme:'solid',risk:1,src:'新浪财经',title:'固态电池中试线落地,27-28 量产预期升温'},
+ {ind:'稳定币',emoji:'🪙',type:'小道消息',theme:'stable',risk:2,rumor:true,src:'X/推特',title:'传某交易所拿到稳定币牌照,板块躁动'},
+ {ind:'AI 瓶颈/HBM',emoji:'🔩',type:'利好',theme:'aibottle',risk:1,src:'180k',title:'2026 HBM 全球售罄,CoWoS 先进封装持续紧张'}];
+function swipeView(){
+ if(SWIPEI>=SWIPE.length) return swipeResult();
+ const c=SWIPE[SWIPEI];
+ return `<div class="sub">平台把全网新闻和小道消息<b>替你嚼成一张张卡片</b>。无聊就刷:左滑略过、右滑感兴趣 —— ${NAME} 边看边<b>学你的口味</b>,定期帮你总结。</div>
+  <div class="mut3" style="text-align:center;margin-bottom:8px">${SWIPEI+1} / ${SWIPE.length} · 已教会 ${NAME} ${SWIPEI} 条</div>
+  <div class="card" id="swc" onpointerdown="dragStart(event)" style="position:relative;min-height:280px;display:flex;flex-direction:column;border-color:var(--line2);touch-action:none;cursor:grab">
+    <div id="stampL" style="position:absolute;top:14px;left:14px;border:2px solid var(--good);color:var(--good);padding:2px 9px;border-radius:8px;font-weight:800;transform:rotate(-12deg);opacity:0;pointer-events:none">感兴趣 ♥</div>
+    <div id="stampN" style="position:absolute;top:14px;right:14px;border:2px solid var(--bad);color:var(--bad);padding:2px 9px;border-radius:8px;font-weight:800;transform:rotate(12deg);opacity:0;pointer-events:none">略过 ✕</div>
+    <div class="row between"><div class="row"><div class="ic" style="font-size:20px">${c.emoji}</div><div><b>${c.ind}</b><div class="mut3">来源·${c.src}</div></div></div>
+      <span class="tag ${c.type==='利好'?'acc':c.type==='利空'?'bad':c.rumor?'warn':'blue'}">${c.type}</span></div>
+    <div style="flex:1;display:flex;align-items:center;padding:14px 2px"><div style="font-size:18px;font-weight:700;line-height:1.45">${c.title}</div></div>
+    ${c.rumor?'<div class="flag" style="border-color:rgba(255,180,84,.35)">⚠️ 未证实小道消息</div>':''}
+    <div class="mut3">右滑 ♥ 感兴趣/看好 · 左滑 ✕ 没兴趣/略过</div></div>
+  <div class="row" style="gap:18px;margin-top:16px;justify-content:center">
+    <button onclick="swipe(0)" style="width:62px;height:62px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--bad);font-size:24px;cursor:pointer">✕</button>
+    <button onclick="swipe(1)" style="width:62px;height:62px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--acc),var(--acc2));color:#04140f;font-size:24px;cursor:pointer">♥</button></div>
+  <div class="mut3" style="text-align:center;margin-top:8px">👆 直接拖动卡片,或点下面按钮 · 每次右滑都写进 ${NAME} 的记忆</div>`;}
+function swipe(like){const c=SWIPE[SWIPEI];if(like){PREF.themes[c.theme]=(PREF.themes[c.theme]||0)+1;PREF.risk+=c.risk;PREF.n++;}SWIPEI++;
+ const el=$('#swc');if(el){el.style.transition='.22s ease';el.style.transform=like?'translateX(120%) rotate(12deg)':'translateX(-120%) rotate(-12deg)';el.style.opacity='0';setTimeout(()=>go('hot'),190);}else go('hot');}
+function dragStart(e){const el=$('#swc');if(!el)return;el.style.transition='none';let dx=0;const sx=e.clientX;
+ try{el.setPointerCapture(e.pointerId);}catch(_){}
+ function mv(ev){dx=ev.clientX-sx;el.style.transform=`translateX(${dx}px) rotate(${dx/22}deg)`;const L=$('#stampL'),N=$('#stampN');if(L)L.style.opacity=dx>0?Math.min(1,dx/90):0;if(N)N.style.opacity=dx<0?Math.min(1,-dx/90):0;}
+ function up(){document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);
+  if(Math.abs(dx)>90)swipe(dx>0?1:0);else{el.style.transition='.2s';el.style.transform='';const L=$('#stampL'),N=$('#stampN');if(L)L.style.opacity=0;if(N)N.style.opacity=0;}}
+ document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);}
+function prefTop(n){return Object.entries(PREF.themes).sort((a,b)=>b[1]-a[1]).slice(0,n||2).map(([k])=>{const t=THEMES.find(x=>x.key===k);return t?t.name.replace(' Agent',''):k;});}
+function styleFromPref(){const r=PREF.n?PREF.risk/PREF.n:0;return r>=1.3?'偏进取':r>=0.6?'均衡':PREF.n?'偏稳健':'还在了解你';}
+function prefSummary(){const top=prefTop(2);return (top.length?'偏好 '+top.join('/')+' · ':'')+'风格 '+styleFromPref();}
+function radar(){const dims=[['科技/AI',['ai','tmt']],['能源/电力',['power']],['避险/金',['metal']],['投机/加密',['crypto']],['周期/农业',['agri']],['防御/稳健',['allweather','pharma']]];
+ const vals=dims.map(d=>Math.min(1,d[1].reduce((s,k)=>s+(PREF.themes[k]||0),0)/3));
+ const n=dims.length,R=58,cx=90,cy=78,ang=i=>(-90+i*360/n)*Math.PI/180,pt=(i,r)=>[(cx+Math.cos(ang(i))*R*r).toFixed(1),(cy+Math.sin(ang(i))*R*r).toFixed(1)];
+ let grid='';[0.34,0.67,1].forEach(r=>{grid+=`<polygon points="${dims.map((_,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="#2c3a4d"/>`;});
+ const spokes=dims.map((_,i)=>`<line x1="${cx}" y1="${cy}" x2="${pt(i,1)[0]}" y2="${pt(i,1)[1]}" stroke="#222d3d"/>`).join('');
+ const poly=`<polygon points="${vals.map((v,i)=>pt(i,Math.max(0.05,v)).join(',')).join(' ')}" fill="rgba(255,138,61,.25)" stroke="#ff8a3d" stroke-width="2"/>`;
+ const labels=dims.map((d,i)=>{const p=pt(i,1.28);return `<text x="${p[0]}" y="${p[1]}" font-size="7.5" fill="#9fb0c3" text-anchor="middle">${d[0]}</text>`;}).join('');
+ return `<svg viewBox="0 0 180 162" style="width:100%;max-width:240px;display:block;margin:4px auto">${grid}${spokes}${poly}${labels}</svg>`;}
+function swipeResult(){const nm=k=>(THEMES.find(t=>t.key===k)||{}),
+ top=Object.entries(PREF.themes).sort((a,b)=>b[1]-a[1]).slice(0,3),
+ risk=styleFromPref(),recs=top.map(([k])=>nm(k)).filter(t=>t.key);
+ return `<div class="card hl"><div class="row">${av()}<b style="font-size:14px">📜 收到您的尊贵指示 ✦</b></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px">属下已把您这 <b>${PREF.n}</b> 次"圣意"写进记忆——您偏爱 <b>${prefTop(2).join(' / ')||'…'}</b>、风格 <b>${risk}</b>。这就去为您优化<b>战队配置与风控</b>,并<b>定期向您汇报</b>。</div>
+   <div class="k" style="margin:8px 0 0;text-align:center">🛰️ 你的投资偏好画像</div>${radar()}</div>
+  ${recs.length?`<div class="card"><div class="k" style="margin-bottom:8px">🛒 据此 ${NAME} 给你挑了这些 agent</div>${recs.map(t=>`<div class="li"><div class="ic">${t.emoji}</div><div style="flex:1"><b style="font-size:12.5px">${t.name}</b><div class="mut3">近30天 ${t.m30>0?'+':''}${t.m30}% · 风险 ${t.risk}</div></div></div>`).join('')}<button class="cta" style="margin-top:10px" onclick="go('gallery')">去广场把它们选进战队 →</button></div>`:''}
+  <div class="card"><div class="mut3" style="font-size:12px">😌 <b>无聊就刷两张</b>,我会<b>定期帮你总结</b>、越来越懂你。想看我记住了啥 → <span class="lnk" onclick="go('memory')">我的记忆 ›</span></div></div>
+  <button class="cta" onclick="SWIPEI=0;go('hot')">🔄 继续刷(攒越多越准)</button>
+  <button class="ghost" style="margin-top:8px" onclick="SWIPEI=0;PREF={themes:{},risk:0,n:0};go('hot')">清空重来</button>`;}
+function hotCard(h){
+ if(h.rumor) return `<div class="card" style="border-color:rgba(255,180,84,.4)">
+   <div class="row between"><div class="wrap2"><span class="tag warn">🍉 吃瓜</span><span class="pill" style="cursor:default">来自·${h.plat}</span></div><span class="mut3">${'🍉'.repeat(h.gua)}</span></div>
+   <b style="display:block;margin:8px 0 5px;font-size:14px">${h.title}</b>
+   <div class="mut3" style="margin-bottom:7px">📈 ${h.spread}</div>
+   <div class="flag" style="border-color:rgba(255,180,84,.35)">⚠️ <b>未证实小道消息</b> · ${NAME} 评 <b style="color:var(--warn)">${h.cred}</b></div>
+   <div class="card" style="margin:8px 0 0;padding:11px 12px;background:rgba(217,154,91,.06);border-color:rgba(217,154,91,.25)">
+     <div class="row" style="margin-bottom:5px">${av()}<b style="font-size:12px">${NAME} 锐评</b></div>
+     <div class="muted" style="font-size:12.5px">${h.ai}</div></div>
+   <button class="ghost" style="margin-top:10px" onclick="dunGua()">🍉 蹲一个后续 · 让 ${NAME} 替我盯真假</button></div>`;
+ return `<div class="card">
+   <div class="row between"><div class="wrap2"><span class="tag blue">${h.cat}</span><span class="pill" style="cursor:default">来源·${h.src}</span></div><span class="mut3">${'🔥'.repeat(h.hot)}</span></div>
+   <b style="display:block;margin:8px 0;font-size:14px">${h.title}</b>
+   <div class="mut3" style="margin:8px 0">💬 圈内观点:${h.take}</div>
+   <div class="card" style="margin:8px 0 0;padding:11px 12px;background:rgba(217,154,91,.06);border-color:rgba(217,154,91,.25)">
+     <div class="row" style="margin-bottom:5px">${av()}<b style="font-size:12px">${NAME}的点评</b><span class="tag vio" style="margin-left:auto">把握 ${h.conf}</span></div>
+     <div class="muted" style="font-size:12.5px">${h.ai}</div></div></div>`;}
+function dunGua(){TASKS.unshift({t:'替你蹲这个瓜的后续——有官方公告/可靠信源证实或证伪,第一时间告诉你',s:'蹲上了 🍉 有动静就通知你',p:20});
+ $('#toast').innerHTML=`<div class="row"><span style="font-size:18px">🍉</span><div style="flex:1"><div class="row between"><b style="font-size:12.5px">${NAME} 替你蹲上了</b><span class="mut3">去"替我干活"看</span></div><div class="mut3" style="color:var(--tx2)">这瓜有后续(真/假)我第一时间告诉你,你不用一直刷</div></div></div>`;
+ $('#toast').classList.add('show');setTimeout(dismissToast,4500);}
+
+/* ---------- 持仓日历(财报/宏观 + 预测 + 历史走势 + 自定义勾选 + 大事前管仓) ---------- */
+const CAL=[
+ {type:'earnings',date:'6/24',day:24,tk:'TSLA',title:'特斯拉 TSLA 财报',lean:'不好说,分歧很大',leanc:'var(--tx2)',conf:'低',implied:11,hist:{total:8,note:'波动极大:beat/miss 后平均都有 ±10% 级别跳动,方向难猜。这种我更建议你管理仓位、而不是赌方向。'}},
+ {type:'macro',date:'6/18',day:18,title:'FOMC 利率决议',stake:'你对利率敏感度 44。若偏鹰(暗示不降息),你的成长股容易被压;建议大会前别加成长仓。'},
+ {type:'macro',date:'6/12',day:12,title:'美国 CPI 通胀数据',stake:'CPI 超预期 = 降息预期降温 = 你的成长股承压。这是你这组合最该盯的宏观数据之一。'},
+ {type:'earnings',date:'5/28',day:null,tk:'NVDA',title:'英伟达 NVDA 财报(上月已出)',lean:'已公布:beat,但财报后冲高回落',leanc:'var(--tx2)',conf:'—',implied:8,hist:{total:8,note:'beat 6 次:beat 后平均 +5%、miss 后平均 −9%。注意:即使 beat,也有 2 次照样跌了——预期太高、利好出尽。'}},
+ {type:'macro',date:'7/05',day:null,title:'美国非农就业(下月)',stake:'就业太强→Fed 不急降息→成长股偏空;太弱→衰退担忧。两头都可能让你波动。'}];
+V.cal=()=>`<h1>持仓日历 📅</h1>
+ <div class="sub">点日历上标了点的日子看当天大事;每条带<b>预测、历史业绩后走势</b>,可勾选成你自己的日历;大事前 ${NAME} 帮你管仓。</div>
+ <div class="card">
+   <div class="row between" style="margin-bottom:10px"><span class="lnk" style="cursor:default">‹</span><b>2026 年 6 月</b><span class="lnk" style="cursor:default">›</span></div>
+   <div class="cal-wk">${'日一二三四五六'.split('').map(w=>`<div>${w}</div>`).join('')}</div>
+   <div class="cal-grid">${monthGrid()}</div>
+   <div class="row" style="gap:14px;margin-top:10px;font-size:11px;color:var(--tx3)"><span>🔵 财报/业绩</span><span>🟡 宏观大事</span>${CALDAY?`<span class="lnk" style="margin-left:auto" onclick="CALDAY=null;go('cal')">显示全部</span>`:''}</div>
+ </div>
+ <div class="card hl"><div class="row">${av()}<b style="font-size:13px">⏰ 大事前,${NAME}帮你管仓</b></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px"><b>6 天后 FOMC + 12 天后特斯拉财报</b>:你押 AI 太重、对利率又敏感。这两件大事前波动会放大——要不要我替你先把仓位降一点、备好对冲,等尘埃落定再说?</div>
+   <button class="cta" onclick="go('agent')">让 ${NAME} 大事前帮我管仓 →</button></div>
+ <div class="row between" style="margin:4px 2px 8px"><span class="k">${CALDAY?('6 月 '+CALDAY+' 日 · 当天大事'):('近期大事 · 已勾选 '+CALSEL.size+' 项')}</span>${CALDAY?'':'<span class="mut3">点右上"加入"自定义</span>'}</div>
+ ${CAL.map((e,i)=>(CALDAY&&e.day!==CALDAY)?'':calCard(e,i)).join('')||'<div class="card mut3">这天没有大事</div>'}`;
+function monthGrid(){const ev={12:'macro',18:'macro',24:'earnings'},days=30,offset=1,today=9;let c='';
+ for(let i=0;i<offset;i++)c+='<div></div>';
+ for(let d=1;d<=days;d++){const e=ev[d];c+=`<div class="cell ${d===today?'today':''} ${e?'hasev':''}" onclick="${e?`CALDAY=${d};go('cal')`:''}">${d}${e?`<i class="evd" style="background:${e==='macro'?'var(--gold)':'var(--blue)'}"></i>`:''}</div>`;}
+ return c;}
+function calCard(e,i){const on=CALSEL.has(i);return `<div class="card" style="${on?'border-color:rgba(255,138,61,.3)':''}">
+ <div class="row between"><div class="wrap2"><span class="tag ${e.type==='macro'?'gold':'blue'}">${e.type==='macro'?'宏观大事':'财报/业绩'}</span><span class="pill" style="cursor:default">${e.date}</span></div>
+   <span class="pill ${on?'on':''}" onclick="toggleCal(${i})">${on?'✓ 已加入':'+ 加入日历'}</span></div>
+ <b style="display:block;margin:8px 0 6px;font-size:14px">${e.title}</b>
+ ${e.type==='earnings'?`<div class="mut3" style="margin-bottom:7px">📌 ${NAME}:方向我不猜,只帮你管"万一" · 市场预期波动 <b>±${e.implied}%</b></div>
+   <div class="card" style="background:var(--card2);margin:0;padding:10px 12px"><div class="k" style="margin-bottom:5px">📊 历史:过去 ${e.hist.total} 次财报后</div><div class="muted" style="font-size:12.5px">${e.hist.note}</div></div>
+   <button class="ghost" style="margin-top:8px" onclick="openEarn('${e.tk}')">📈 点开看历史财报后股价表现(图)→</button>`
+  :`<div class="muted" style="font-size:12.5px">📌 对你的影响:${e.stake}</div>`}</div>`;}
+function toggleCal(i){CALSEL.has(i)?CALSEL.delete(i):CALSEL.add(i);go('cal');}
+
+/* ---------- 财报详情:历史财报后股价表现图 ---------- */
+const EARN={
+ NVDA:{name:'英伟达 NVDA',implied:8,rows:[{q:'24Q2',bm:'miss',mv:-11},{q:'24Q3',bm:'beat',mv:-4},{q:'24Q4',bm:'beat',mv:3},{q:'25Q1',bm:'beat',mv:7},{q:'25Q2',bm:'miss',mv:-9},{q:'25Q3',bm:'beat',mv:5},{q:'25Q4',bm:'beat',mv:-2},{q:'26Q1',bm:'beat',mv:9}]},
+ TSLA:{name:'特斯拉 TSLA',implied:11,rows:[{q:'24Q2',bm:'miss',mv:-12},{q:'24Q3',bm:'beat',mv:22},{q:'24Q4',bm:'miss',mv:-8},{q:'25Q1',bm:'beat',mv:6},{q:'25Q2',bm:'miss',mv:-14},{q:'25Q3',bm:'beat',mv:10},{q:'25Q4',bm:'miss',mv:-5},{q:'26Q1',bm:'beat',mv:8}]}};
+function earnChart(tk){const D=EARN[tk],w=300,h=132,n=D.rows.length,bw=w/n,mid=h/2,maxAbs=Math.max(...D.rows.map(r=>Math.abs(r.mv))),scale=(mid-18)/maxAbs;
+ const bars=D.rows.map((r,i)=>{const x=i*bw+bw*0.18,bwid=bw*0.64,bh=Math.abs(r.mv)*scale,y=r.mv>=0?mid-bh:mid,col=r.mv>=0?'#ff8a3d':'#ff6b6b',fell=r.bm==='beat'&&r.mv<0;
+   return `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bwid.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${col}" ${fell?'stroke="#ffb454" stroke-width="1.5"':''}/>
+   <text x="${(x+bwid/2).toFixed(1)}" y="11" font-size="7" fill="${r.bm==='beat'?'#ff8a3d':'#ff6b6b'}" text-anchor="middle">${r.bm==='beat'?'B':'M'}</text>
+   <text x="${(x+bwid/2).toFixed(1)}" y="${(r.mv>=0?y-3:y+bh+9).toFixed(1)}" font-size="7.5" fill="${col}" text-anchor="middle">${r.mv>0?'+':''}${r.mv}</text>
+   <text x="${(x+bwid/2).toFixed(1)}" y="${h-2}" font-size="6.5" fill="#67788c" text-anchor="middle">${r.q}</text>`;}).join('');
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%"><line x1="0" y1="${mid}" x2="${w}" y2="${mid}" stroke="#2c3a4d"/>${bars}</svg>`;}
+V.earn=()=>{const D=EARN[CUREARN],beats=D.rows.filter(r=>r.bm==='beat').length,fell=D.rows.filter(r=>r.bm==='beat'&&r.mv<0).length,
+ avg=a=>a.length?(a.reduce((s,r)=>s+r.mv,0)/a.length).toFixed(1):'0',ups=D.rows.filter(r=>r.mv>0),downs=D.rows.filter(r=>r.mv<0);
+ return `<div class="lnk" onclick="go('cal')">‹ 返回日历</div>
+  <h1 style="padding-top:6px">${D.name} · 财报后表现 📈</h1>
+  <div class="sub">过去 8 次财报<b>出来之后第二天</b>的真实涨跌,一眼看个感觉。市场这次预期波动 <b>±${D.implied}%</b>。</div>
+  <div class="card"><div class="k" style="margin-bottom:8px">📊 历次财报后涨跌(B=超预期 · M=不及预期)</div>${earnChart(CUREARN)}
+    <div class="mut3" style="margin-top:8px">橙色框 = <b>即使超预期也照样跌</b> 的那几次(预期太高、利好出尽)。</div></div>
+  <div class="row" style="gap:8px"><div class="card" style="flex:1;margin:0"><div class="k">超预期</div><div class="big" style="font-size:18px">${beats}/8</div></div>
+    <div class="card" style="flex:1;margin:0"><div class="k">涨的平均</div><div class="big up" style="font-size:18px">+${avg(ups)}%</div></div>
+    <div class="card" style="flex:1;margin:0"><div class="k">跌的平均</div><div class="big down" style="font-size:18px">${avg(downs)}%</div></div></div>
+  <div class="card"><div class="row" style="margin-bottom:6px">${av()}<b style="font-size:12.5px">${NAME} 怎么看</b></div>
+    <div class="muted" style="font-size:12.5px">超预期 ${beats} 次,可其中 <b>${fell} 次照样跌</b>——所以财报<b>方向我不猜</b>(猜不准),我只帮你管"万一":这次预期波动 ±${D.implied}%,你仓位偏重的话,要不要事件前减一点、备好对冲?</div>
+    <button class="cta" style="margin-top:10px" onclick="AGENTMODE='auto';go('agent')">让 ${NAME} 财报前帮我管仓 →</button></div>
+  <div class="note">历史走势仅供直观参考,不预示未来。数字为演示假数据。</div>`;};
+function openEarn(tk){CUREARN=tk;go('earn');}
+
+/* ---------- 社交:跟练战队 + 拥挤度雷达 ---------- */
+const SQUAD=[{n:'老王',disc:91,streak:31,listen:82},{n:'你',disc:84,streak:23,listen:76,me:true},{n:'小美',disc:78,streak:12,listen:68},{n:'阿杰',disc:73,streak:8,listen:55}];
+const CROWD=[{t:'英伟达',v:73,c:'bad'},{t:'比特币',v:61,c:'warn'},{t:'特斯拉',v:58,c:'warn'},{t:'中概互联',v:22,c:'good'}];
+V.squad=()=>`<h1>跟练战队 & 拥挤度 🛡️</h1>
+ <div class="sub">这里<b>不晒收益、不抄仓位</b>——只比谁更自律,只看大家在不在一起扎堆。<b>社交越大,越帮你躲开韭菜区。</b></div>
+ <div class="card" style="border-color:rgba(255,107,107,.3)"><div class="row">${av()}<b style="font-size:13px">🚨 集体拥挤度预警</b></div>
+   <div class="muted" style="margin:8px 0;font-size:12.5px">你们战队 <b>80%</b> 这周都在裸多 AI;和你画像相似的 1.2 万人里,<b>73%</b> 都买了英伟达——<b>太挤了,一起栽的风险在上升</b>。要不要看看现在没人扎堆的地方?</div></div>
+ <h2>🏅 战队榜 · 比的是自律不是收益</h2>
+ <div class="card">${SQUAD.map((m,i)=>`<div class="li"><div class="ic">${i===0?'👑':i+1}</div><div style="flex:1"><div class="row between"><b style="font-size:12.5px">${m.n}${m.me?' (你)':''}</b><span class="tag ${m.me?'acc':'blue'}">自律 ${m.disc}</span></div><div class="mut3">连续 ${m.streak} 天 · 听劝率 ${m.listen}%</div></div></div>`).join('')}
+   <button class="cta" style="margin-top:10px" onclick="inviteSquad()">拉朋友一起陪练 →</button></div>
+ <h2>📊 本周战报</h2>
+ <div class="card"><div class="li"><div class="ic">🛡️</div><div style="flex:1"><b style="font-size:12.5px">最能忍</b><div class="mut3">老王这周忍住 6 次没追高</div></div></div>
+   <div class="li"><div class="ic">🎯</div><div style="flex:1"><b style="font-size:12.5px">最听劝</b><div class="mut3">你这周听了 Ray 8 次提醒里的 7 次</div></div></div>
+   <div class="li"><div class="ic">🔥</div><div style="flex:1"><b style="font-size:12.5px">全队连续</b><div class="mut3">4 人都打卡满 7 天,解锁战队徽章</div></div></div></div>
+ <h2>🫧 拥挤度雷达 · 你持仓现在挤不挤</h2>
+ <div class="card">${CROWD.map(x=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row between"><b style="font-size:12.5px">${x.t}</b><span style="color:${cc[x.c]};font-weight:700">${x.v}% 的人也在押</span></div><div class="bar" style="margin-top:6px"><i style="width:${x.v}%;background:${cc[x.c]}"></i></div></div>`).join('')}
+   <div class="muted" style="margin-top:10px;font-size:12.5px">🟠 越低越稀缺(可能是机会):你的<b>中概 22%</b> 是少有的没扎堆;🔴 越高越危险:<b>英伟达 73%</b> 全网都在押。</div></div>
+ <div class="note">🔒 全程不显示任何人的具体仓位和收益,只共享自律分和"多少人扎堆"。不晒单、不跟单、不喊单。</div>`;
+function inviteSquad(){$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">🔗</span><div style="flex:1"><div class="row between"><b style="font-size:12.5px">邀请链接已生成</b><span class="mut3">粘给朋友</span></div><div class="mut3" style="color:var(--tx2)">朋友加入一起模拟陪练,你俩各得 7 天 Pro 体验</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,4500);}
+
+/* ---------- 记忆系统:刷卡/行为/持仓 → 记忆 → 改变投资风格 ---------- */
+V.memory=()=>{const cur=STYLE||styleFromPref();
+ const sm=PREF.n?[{src:'刷卡',t:`你偏好 ${prefTop(2).join('/')||'—'},愿意碰${cur.includes('进取')?'高':'中低'}风险 → 风格 ${styleFromPref()}`}]:[];
+ const all=[...sm,...MEM];
+ return `<h1>🧠 ${NAME} 对你的记忆</h1>
+  <div class="sub">${NAME} 不是每次从零开始——它<b>记着对你的了解</b>(刷卡/你的操作/持仓/你亲口说的),而且这些记忆<b>实实在在改变它怎么帮你投</b>。记错了你随时改。</div>
+  <div class="card"><div class="k" style="margin-bottom:2px;text-align:center">🛰️ 你的投资偏好画像(刷得越多越准)</div>${radar()}<div class="mut3" style="text-align:center">右滑积累成这张图,${NAME} 据此调整风格与战队</div></div>
+  <h2>它记住的关于你</h2>
+  <div class="card">${all.map((m,i)=>`<div class="li"><div class="ic">${m.src==='刷卡'?'🃏':m.src==='行为'?'🪞':m.src==='持仓'?'📊':'💬'}</div><div style="flex:1"><div style="color:var(--tx2);font-size:12.5px">${m.t}</div><div class="mut3" style="margin-top:2px">来自·${m.src}</div></div>${m.src==='刷卡'?'<span class="lnk" onclick="HOTMODE=\'swipe\';go(\'hot\')">去刷</span>':`<span class="lnk" style="color:var(--bad)" onclick="forgetMem(${i-sm.length})">忘掉</span>`}</div>`).join('')}
+   <div class="row" style="gap:8px;margin-top:10px"><input id="memin" placeholder="亲口教它一条,如:我不碰杠杆"/><button class="ghost" style="width:auto;padding:10px 14px;white-space:nowrap" onclick="teachMem()">教它</button></div></div>
+  <h2>这些记忆,怎么改变了它帮你投</h2>
+  <div class="card">
+   <div class="li"><div class="ic">🎚️</div><div style="flex:1"><b style="font-size:12.5px">默认投资风格 · ${cur}</b><div class="mut3">${PREF.n?'来自你的刷卡偏好':'刷几张卡我就懂你'},可手动覆盖</div></div></div>
+   <div class="dial" style="margin:4px 0 10px">${['偏稳健','均衡','偏进取'].map(s=>`<button class="${cur===s?'on':''}" onclick="STYLE='${s}';go('memory')">${s.replace('偏','')}</button>`).join('')}</div>
+   <div class="li"><div class="ic">🛒</div><div><b style="font-size:12.5px">战队倾斜</b><div class="mut3">${prefTop(2).length?prefTop(2).join('/')+' 权重更高':'还没明显倾斜'} ← 刷卡</div></div></div>
+   <div class="li"><div class="ic">✋</div><div><b style="font-size:12.5px">拦截策略</b><div class="mut3">你追高时我更主动拦你 ← 行为</div></div></div>
+   <div class="li"><div class="ic">📈</div><div><b style="font-size:12.5px">机会排序</b><div class="mut3">${prefTop(1)[0]||'你偏好的'}类优先给你看 ← 偏好</div></div></div>
+   <div class="li"><div class="ic">🚫</div><div><b style="font-size:12.5px">硬规矩</b><div class="mut3">你说"不碰日内高频" → 这类我永不给你</div></div></div></div>
+  <div class="card gold"><div class="muted" style="font-size:12.5px">这就是它"越用越懂你"的底层:你每次右滑、每次听劝、每次操作,都写进它的记忆,<b>改变它下一步怎么做</b>——记忆,就是它能不断进化、长成"你的" agent 的核心。</div></div>`;};
+function forgetMem(i){if(i>=0&&i<MEM.length)MEM.splice(i,1);go('memory');}
+function teachMem(){const el=$('#memin'),v=el?el.value.trim():'';if(v)MEM.unshift({src:'你说的',t:v});go('memory');}
+
+/* ---------- 平替篮子:用小本金复刻买不起/买不了的标的 ---------- */
+const REPLICA={
+ '寒武纪':{kind:'A股个股',lotcost:'15.2 万',corr:0.88,fit:90,te:7,cross:0,
+  why:'寒武纪、海光、曙光、景嘉微都被同一个"国产算力/GPU 自主可控"逻辑驱动,涨跌高度同步——用更便宜的几只,就能复刻它的走势。',
+  basket:[{n:'海光信息',px:135,sh:200,amt:27000},{n:'中科曙光',px:62,sh:200,amt:12400},{n:'景嘉微',px:85,sh:100,amt:8500}],
+  a:[0,8,5,16,12,26,34,44],b:[0,7,6,14,13,24,30,40]},
+ '商业航天指数':{kind:'指数',lotcost:'60 万',corr:0.92,fit:93,te:5,cross:0,
+  why:'商业航天指数主要由航天电子、中国卫星、上海瀚讯等成分驱动——挑权重最大、相关最高的几只,就能用小钱拿到指数 90%+ 的同款效果。',
+  basket:[{n:'航天电子',px:28,sh:800,amt:22400},{n:'中国卫星',px:38,sh:500,amt:19000},{n:'上海瀚讯',px:26,sh:300,amt:7800}],
+  a:[0,4,9,7,15,20,25,30],b:[0,5,8,7,14,19,23,28]},
+ '海力士+三星(海外)':{kind:'跨市场·A股买不了',lotcost:'A 股买不了',corr:0.85,fit:82,te:10,cross:1,
+  why:'你是 A 股投资者,直接买不了韩股海力士/三星。但它们的核心逻辑是"存储/HBM 涨价",A 股的兆易创新、澜起、北京君正同受这个逻辑驱动——用它们近似复刻。(这正是欧美映射 Agent 的活)',
+  basket:[{n:'兆易创新',px:130,sh:200,amt:26000},{n:'澜起科技',px:75,sh:200,amt:15000},{n:'北京君正',px:75,sh:100,amt:7500}],
+  a:[0,6,3,12,9,18,22,27],b:[0,5,4,10,8,15,18,22]}};
+V.replica=()=>{const tgts=Object.keys(REPLICA),r=REPLICA[REPTGT],total=r.basket.reduce((s,x)=>s+x.amt,0);
+ return `<h1>平替篮子 🧩</h1>
+  <div class="sub">买不起、或买不了的,告诉我目标 + 本金,我给你一个<b>买得起的平替篮子</b>:用历史相关性复刻同款走势、一键配好。</div>
+  <div class="k" style="margin:2px 0 8px">你想买什么?(买不起/买不了的也行)</div>
+  <div class="wrap2" style="margin-bottom:12px">${tgts.map(t=>`<span class="chip ${REPTGT===t?'on':''}" onclick="REPTGT='${t}';go('replica')">${t}</span>`).join('')}<span class="chip" onclick="alert('（演示）输入任意标的,agent 实时算平替篮子')">＋ 自己搜</span></div>
+  <div class="card hl"><div class="row between"><div><b>目标:${REPTGT}</b><div class="mut3">${r.kind} · 一手要 ${r.lotcost}</div></div><div style="text-align:right"><div class="mut3">你的本金</div><b style="color:var(--acc);font-size:16px">¥5 万</b></div></div>
+    <div class="mut3" style="margin-top:8px;color:var(--bad)">${r.cross?'⚠️ A 股直接买不了 → 用映射篮子近似':'⚠️ 一手就超过你的本金 → 直接买不了'}</div></div>
+  <h2>🧩 给你配的平替篮子(买得起)</h2>
+  <div class="card">${r.basket.map(x=>`<div class="li"><div class="ic">📈</div><div style="flex:1"><div class="row between"><b style="font-size:12.5px">${x.n}</b><b>¥${(x.amt/10000).toFixed(2)}万</b></div><div class="mut3">${x.px} 元 × ${x.sh} 股 · 占 ${(x.amt/total*100).toFixed(0)}%</div></div></div>`).join('')}
+    <div class="row between" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line)"><b>合计</b><b style="color:var(--acc)">¥${(total/10000).toFixed(2)} 万 / 5 万</b></div></div>
+  <h2>📊 复刻效果</h2>
+  <div class="card"><div class="mrow"><div class="mcell"><div class="ck">相关性</div><div class="cv">${r.corr}</div></div><div class="mcell"><div class="ck">历史拟合</div><div class="cv up">${r.fit}%</div></div><div class="mcell"><div class="ck">年化跟踪误差</div><div class="cv">${r.te}%</div></div></div>
+    <div class="k" style="margin:8px 0 2px">目标 vs 平替篮子(近一年)</div>${replChart(r.a,r.b)}
+    <div class="wrap2" style="margin-top:6px;font-size:11px;color:var(--tx3)"><span style="color:var(--blue)">┄ ${REPTGT}</span><span style="color:var(--acc)">━ 平替篮子</span></div></div>
+  <div class="card" style="background:rgba(217,154,91,.06);border-color:rgba(217,154,91,.25)"><div class="row" style="margin-bottom:4px">${av()}<b style="font-size:12px">${NAME} 的分析</b></div><div class="muted" style="font-size:12.5px">${r.why}</div></div>
+  <div class="card" style="border-color:rgba(255,107,107,.3)"><b style="font-size:12.5px;color:var(--bad)">⚠️ 老实说,平替 ≠ 原版</b><div class="mut3" style="margin-top:4px">① 相关性是历史值、未来会变;② 个股有自身风险(可能踩雷),不如原版纯粹;${r.cross?'③ 跨市场相关性更低('+r.corr+')、还有汇率和时差;':'③ 指数平替少了一点分散;'}④ 有交易成本。它是"近似",不是"等于"。</div></div>
+  <button class="cta" onclick="buyBasket()">一键按比例买入(模拟)</button>
+  <div class="note">怎么算的:${NAME} 在你预算内,用历史相关性 + 同驱动因子,优化出跟踪误差最小、且按手数凑得进的篮子。个股/价格为演示假数据,非投资建议。</div>`;};
+function replChart(a,b){const w=300,h=72,all=a.concat(b),mn=Math.min(...all),mx=Math.max(...all),rg=(mx-mn)||1,sx=w/(a.length-1),sy=v=>h-6-((v-mn)/rg)*(h-12),P=arr=>arr.map((v,i)=>`${i?'L':'M'}${(i*sx).toFixed(0)},${sy(v).toFixed(1)}`).join(' ');
+ return `<svg viewBox="0 0 ${w} ${h}" style="width:100%"><path d="${P(a)}" fill="none" stroke="#5ca8ff" stroke-width="1.6" stroke-dasharray="3 3"/><path d="${P(b)}" fill="none" stroke="#ff8a3d" stroke-width="2"/></svg>`;}
+function buyBasket(){$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">✅</span><div style="flex:1"><b style="font-size:12.5px">已按比例配好(模拟盘)</b><div class="mut3" style="color:var(--tx2)">${REPTGT} 平替篮子已下单,${NAME} 会帮你盯着跟踪误差</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,4000);}
+
+/* ---------- 交互 ---------- */
+const TAB={today:'today',hot:'hot',cal:'cal',earn:'cal',replica:'today',agent:'agent',gallery:'agent',memory:'me',me:'me',squad:'me',rules:'me',xray:'me',score:'me',safety:'me',limits:'me'};
+function go(v){$('#scroll').innerHTML=V[v]();document.querySelectorAll('#tabbar .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB[v]));
+ if(v==='agent'&&AGENTMODE==='work')setAuto(AUTO,true);$('#scroll').scrollTop=0;}
+$('#tabbar').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){if(b.dataset.t==='agent')AGENTMODE='team';if(b.dataset.t==='today')DD=false;go(b.dataset.t);}});
+function doPending(ok){PENDING=false;FEED.unshift(ok?{d:'刚刚',t:`${NAME}已去办:给 AI 仓加了 1.5% 的"防大跌"保险${PAPER?'(模拟盘)':''},到点会提醒你`,c:'good'}:{d:'刚刚',t:'好,听你的,这单不做了,记一笔',c:'blue'});go('agent');}
+function addTask(){TASKS.unshift({t:'盯着比特币赌涨的人多不多,不挤了就告诉你',s:'刚接到,盯上了',p:30});go('agent');}
+const AUTOD=['<b>只出主意</b>:只提示分析,一根手指不碰你账户。最安全。','<b>写好等我点</b>:把单子写好,你点一下才执行。','<b>规矩内自动</b>:只在你定死的规矩里替你动手,越界立刻停。要 Pro,且陪练满 7 天才解锁。'];
+function setAuto(i,silent){if(i===2){if(!silent)openProAuto();return;}AUTO=i;document.querySelectorAll('#dial button').forEach((b,j)=>b.classList.toggle('on',j===i));const d=$('#autod');if(d)d.innerHTML=AUTOD[i];}
+function startApp(){$('#onb').style.display='none';$('#agentlb').textContent=NAME;$('#topsub').textContent=`你的搭子 · ${NAME}`;go('today');
+ setTimeout(()=>{$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">✦</span><div style="flex:1"><div class="row between"><b style="font-size:12.5px">${NAME} 上岗了</b><span class="mut3">点开</span></div><div class="mut3" style="color:var(--tx2)">已经替你盯上,还拟好了一单等你点头 —— 去"替我干活"看看?</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,6500);},2600);}
+function dismissToast(){$('#toast').classList.remove('show');}
+function openProAuto(){$('#protitle').innerHTML='⚡ 让 '+NAME+' 真的替你动手';$('#prodesc').innerHTML=`"规矩内自动"是让 ${NAME} 在你画死的护栏里<b>真的替你下手</b>,越界立刻停、亏损刹车、随时收回。这是 Pro 的本事——且陪练满 7 天、它自证过才解锁。`;$('#pro').classList.add('show');}
+function openPro(){openProAuto();}function closePro(){$('#pro').classList.remove('show');}
+function openSettle(){$('#setn').textContent=NAME;$('#settle').classList.add('show');}function closeSettle(){$('#settle').classList.remove('show');}
+function openShock(){$('#sharebody').innerHTML=`<div class="row between"><b style="font-size:16px">分享这个"真相"</b><span class="lnk" onclick="closeShare()">关闭</span></div>
+ <div class="card" style="background:linear-gradient(135deg,#241016,#140c10);border-color:var(--bad);margin-top:12px;text-align:center;padding:22px 16px"><div class="shock" style="font-size:20px">${SHOCK[PORT].big.replace(/<br>/g,' ')} 😳</div><div class="mut3" style="margin-top:12px">— ${NAME}帮我看出来的 · Freeride</div></div>
+ <div class="muted" style="margin:6px 0 10px">🔒 只晒这个"真相",<b>不显示你买了啥</b>。</div><button class="cta" onclick="closeShare()">生成分享图</button>`;$('#share').classList.add('show');}
+function openShareDisc(){$('#sharebody').innerHTML=`<div class="row between"><b style="font-size:16px">晒一晒今天的高光</b><span class="lnk" onclick="closeShare()">关闭</span></div>
+ <div class="card" style="background:linear-gradient(135deg,#10202c,#0c1620);border-color:var(--acc);margin-top:12px;text-align:center;padding:22px 16px"><div style="font-size:30px">🛡️</div><div style="font-size:17px;font-weight:750;margin:8px 0">我今天忍住,没追高</div><div class="muted">${NAME}拦下我一次冲动 · 自律分 84 · 连续 23 天</div></div>
+ <div class="muted" style="margin:6px 0 10px">🔒 晒的是<b>自律</b>,不露持仓、不露操作。</div><button class="cta" onclick="closeShare()">生成分享图</button>`;$('#share').classList.add('show');}
+function closeShare(){$('#share').classList.remove('show');}
+function togglePaper(){PAPER=!PAPER;$('#paper').classList.toggle('on',PAPER);$('#paperlb').textContent=PAPER?'模拟陪练':'实盘';}
+renderOnb();
+</script>
+</body>
+</html>
