@@ -142,9 +142,9 @@ input,select{background:var(--card2);border:1px solid var(--line);color:var(--tx
 
   <nav class="tabbar" id="tabbar">
     <button class="tab on" data-t="today"><span class="ti">◉</span>今天</button>
-    <button class="tab" data-t="hot"><span class="ti">🔥</span>热点</button>
+    <button class="tab" data-t="plaza"><span class="ti">🛒</span>广场</button>
     <button class="tab mid" data-t="agent"><span class="ti">✦</span><span id="agentlb" style="font-size:9.5px;margin-top:1px"></span></button>
-    <button class="tab" data-t="cal"><span class="ti">📅</span>日历</button>
+    <button class="tab" data-t="hot"><span class="ti">🔥</span>热点</button>
     <button class="tab" data-t="me"><span class="ti">☰</span>我的</button>
   </nav>
 </div>
@@ -152,7 +152,7 @@ input,select{background:var(--card2);border:1px solid var(--line);color:var(--tx
 
 <script>
 /* ---------- 状态 ---------- */
-let NAME='',PAPER=true,AGENTMODE='team',AUTO=0,PENDING=true,ONBSTEP=1,PORT='ai5',DD=false,HOTCAT='我的持仓',CALSEL=new Set([0,1]),CALDAY=null,MANAGEON=false,CUREARN='NVDA',WPRESET=0,HOTMODE='swipe',SWIPEI=0,PREF={themes:{},risk:0,n:0};
+let NAME='',PAPER=true,AGENTMODE='auto',PLAZAMODE='grid',AUTO=0,PENDING=true,ONBSTEP=1,PORT='ai5',DD=false,HOTCAT='我的持仓',CALSEL=new Set([0,1]),CALDAY=null,MANAGEON=false,CUREARN='NVDA',WPRESET=0,HOTMODE='swipe',SWIPEI=0,PREF={themes:{},risk:0,n:0};
 let STYLE='',AGENTCAT='全部',REPTGT='寒武纪',MEM=[{src:'行为',t:'你爱追高、一回调就手痒(本月已拦下 3 次)'},{src:'行为',t:'听劝率 76%,比多数人高'},{src:'持仓',t:'你 71% 押在 AI 一个方向'},{src:'你说的',t:'绝不碰日内高频'}];
 let FEED=[
  {d:'今早 06:14',t:'比特币赌涨的人退了一些,按你立的规矩提醒了你(你在睡觉),没擅自动手',c:'blue'},
@@ -211,23 +211,25 @@ V.today=()=>DD?todayDD():todayNormal();
 function todayNormal(){const k=SHOCK[PORT];return `
  <h1>${NAME}早就替你看完隔夜了</h1>
  <div class="rel">🤝 我们一起 23 天 · 躲过 2 次大跌 · 它越来越懂你</div>
- ${PREF.n>0?`<div class="card" onclick="go('memory')" style="cursor:pointer;border-color:rgba(255,138,61,.25)"><div class="mut3" style="font-size:12px">🧠 ${NAME} 记着你的口味:${prefSummary()} —— 这些都在改变它怎么帮你投。<span class="lnk">看记忆›</span></div></div>`:''}
+ ${PREF.n>0?`<div class="mut3" onclick="go('memory')" style="cursor:pointer;margin:-4px 2px 12px;font-size:12px">🧠 ${NAME} 记着你的口味:${prefSummary()} <span class="lnk">看记忆›</span></div>`:''}
  <div class="card hl"><div class="row between"><b>🌙 昨晚 ${NAME} 替你跑了一夜</b><span class="tag vio">新发现</span></div>
    <div class="muted" style="margin:8px 0;font-size:12.5px">发现一件你可能没注意的事 ——</div>
    <button class="ghost" onclick="this.nextElementSibling.classList.add('show');this.style.display='none'">看看它发现了啥 👀</button>
-   <div class="reveal"><div class="muted" style="font-size:12.5px">你那只<b>特斯拉</b>,最近和英伟达越来越同涨同跌了——你比自己以为的<b>更集中</b>。要不要我帮你想个办法?</div></div></div>
+   <div class="reveal"><div class="muted" style="font-size:12.5px">你那只<b>特斯拉</b>,最近和英伟达越来越同涨同跌了——你比自己以为的<b>更集中</b>。</div></div></div>
  <h2>⚠️ 今天最要紧的一件事</h2>
- <div class="card"><div class="muted" style="margin-bottom:8px">${k.head}。${NAME}已替你拟好一个便宜的"防大跌"保险,<b>等你点头</b>。</div>
+ <div class="card hl"><div class="muted" style="margin-bottom:8px">${k.head}。${NAME}已替你拟好一个便宜的"防大跌"保险,<b>等你点头</b>。</div>
    <button class="cta" onclick="AGENTMODE='work';go('agent')">去看 ${NAME} 拟的单 →</button></div>
- <div class="card work"><div class="row between"><b>🤖 ${NAME}正替你盯着</b><span class="lnk" onclick="go('agent')">管理</span></div>
-   <div class="muted" style="margin:6px 0;font-size:12.5px">"AI 仓破 80% 就提醒你" · 现在 <b>76%</b></div><div class="bar"><i style="width:76%;background:var(--warn)"></i></div></div>
- <h2>🎓 ${NAME}陪你练到第 3 天 <span class="tag acc">共7天</span></h2>
- <div class="card"><div class="muted" style="font-size:12.5px">零风险练一周,看它准不准——准了再决定上真钱。</div>
-   <div class="bar" style="margin-top:8px"><i style="width:43%;background:linear-gradient(90deg,var(--acc),var(--blue))"></i></div>
-   <div class="row between" style="margin-top:6px"><span class="mut3">已 3 天 · 说中 4 次、说"不知道" 2 次</span><span class="lnk" onclick="openSettle()">看第7天结算→</span></div></div>
- <div class="card hl" onclick="go('replica')" style="cursor:pointer"><div class="row"><div class="ic">🧩</div><div style="flex:1"><b>买不起 / 买不了?做个"平替篮子"</b><div class="mut3">寒武纪一手15万、商业航天指数一手60万、海外买不了… 用小本金复刻同款走势</div></div><span class="mut3">›</span></div></div>
- <div class="card hl" onclick="AGENTMODE='team';go('agent')" style="cursor:pointer"><div class="row"><div class="ic">🛒</div><div style="flex:1"><b>组建你的 Agent 战队</b><div class="mut3">像挑主题基金:AI/贵金属/电力/全天候/农业… 自己选、自己配权重</div></div><span class="mut3">›</span></div></div>
- <button class="ghost" onclick="DD=true;go('today')">▶︎ 模拟今天大跌(演示回撤陪伴)</button>`;}
+ <div class="card"><div class="row between" style="margin-bottom:8px"><div><b style="font-size:12.5px">🤖 ${NAME} 正替你盯着</b><div class="mut3">"AI 仓破 80% 提醒你" · 现在 76%</div></div><span class="lnk" onclick="AGENTMODE='auto';go('agent')">管理</span></div>
+   <div class="bar" style="margin-bottom:11px"><i style="width:76%;background:var(--warn)"></i></div>
+   <div class="row between"><div><b style="font-size:12.5px">🎓 陪练第 3 天 / 共 7 天</b><div class="mut3">说中 4 次、说"不知道" 2 次</div></div><span class="lnk" onclick="openSettle()">看结算›</span></div>
+   <div class="bar" style="margin-top:6px"><i style="width:43%;background:linear-gradient(90deg,var(--acc),var(--blue))"></i></div></div>
+ <h2>💡 ${NAME}今天替你挑的机会</h2>${ideaCard()}
+ <h2>🧰 快捷工具</h2>
+ <div class="atiles">
+   <div class="tile" onclick="go('replica')"><span class="em">🧩</span><span class="tn">平替篮子</span></div>
+   <div class="tile" onclick="go('cal')"><span class="em">📅</span><span class="tn">持仓日历</span></div>
+   <div class="tile" onclick="PLAZAMODE='grid';go('plaza')"><span class="em">🛒</span><span class="tn">逛广场</span></div></div>
+ <button class="ghost" style="margin-top:14px" onclick="DD=true;go('today')">▶︎ 模拟今天大跌(演示回撤陪伴)</button>`;}
 function todayDD(){return `
  <h1 style="color:var(--bad)">今天大盘绿了 📉</h1>
  <div class="rel">🤝 我们一起 23 天 · 这种日子我都在</div>
@@ -245,8 +247,11 @@ function ideaCard(){const i=IDEA;return `<div class="card hl" style="border-left
 
 /* ---------- agent ---------- */
 V.agent=()=>`<h1>${NAME} ✦</h1>
- <div class="seg">${[['team','战队'],['auto','管钱'],['work','干活'],['chat','聊']].map(([k,l])=>`<button class="${AGENTMODE===k?'on':''}" onclick="AGENTMODE='${k}';go('agent')">${l}</button>`).join('')}</div>
- ${AGENTMODE==='team'?teamView():AGENTMODE==='auto'?autoView():AGENTMODE==='work'?workView():chatView()}`;
+ <div class="seg">${[['auto','管钱'],['work','干活'],['chat','聊一聊']].map(([k,l])=>`<button class="${AGENTMODE===k?'on':''}" onclick="AGENTMODE='${k}';go('agent')">${l}</button>`).join('')}</div>
+ ${AGENTMODE==='auto'?autoView():AGENTMODE==='work'?workView():chatView()}`;
+V.plaza=()=>`<h1>Agent 广场 🛒</h1>
+ <div class="seg"><button class="${PLAZAMODE==='grid'?'on':''}" onclick="PLAZAMODE='grid';go('plaza')">🛒 全部 Agent</button><button class="${PLAZAMODE==='team'?'on':''}" onclick="PLAZAMODE='team';go('plaza')">🧑‍✈️ 我的战队</button></div>
+ ${PLAZAMODE==='team'?teamView():galleryGrid()}`;
 const ACATS=['全部','算力/科技','主题成长','医药','周期/资源','防御/红利','跨市场/特殊','加密'];
 const THEMES=[
  {key:'aibottle',emoji:'🔩',name:'AI 瓶颈 Agent',cat:'算力/科技',featured:1,desc:'专研 AI 产业链最卡脖子的环节:HBM/CoWoS 先进封装/CPO 光模块/液冷/高端 PCB/HVDC 电源',m30:11.6,risk:'高',hot:70,y1:47,win:63,ir:1.8,mdd:21,vol:29,cap:'中',turn:'中',holds:'中际旭创·新易盛·胜宏科技·银轮股份·长电科技',fit:'相信"卖铲子"逻辑、扛得住波动的进取型',view:'AI 不缺需求,缺的是 HBM/封装/光/电——卡脖子的环节最赚钱,但也最拥挤,我盯着估值不追高',eq:[0,9,6,17,14,28,38,47]},
@@ -275,22 +280,20 @@ function teamView(){const picked=THEMES.filter(t=>t.picked),wsum=picked.reduce((
  <div class="card hl"><div class="row between"><b>🧑‍✈️ 你的 Agent 战队(${picked.length})</b><span class="tag ${blended>=0?'acc':'bad'}">近30天 ${blended>0?'+':''}${blended}%(加权)</span></div>
    <div class="bar" style="height:14px;display:flex;margin:10px 0">${picked.map(t=>`<i style="width:${(t.w/wsum*100).toFixed(0)}%;background:${col(t.key)}"></i>`).join('')}</div>
    ${picked.map(t=>`<div class="li"><div class="ic">${t.emoji}</div><div style="flex:1"><div class="row between"><b style="font-size:12.5px">${t.name}</b><span class="${t.m30>=0?'up':'down'}" style="font-weight:700">${t.m30>0?'+':''}${t.m30}%</span></div><div class="mut3">权重 ${(t.w/wsum*100).toFixed(0)}% · 风险 ${t.risk}</div></div></div>`).join('')}
-   <div class="row" style="gap:8px;margin-top:10px"><button class="ghost" onclick="cycleWeights()">⚖️ 调整权重</button><button class="cta" onclick="go('gallery')">＋ 去广场挑更多</button></div></div>
+   <div class="row" style="gap:8px;margin-top:10px"><button class="ghost" onclick="cycleWeights()">⚖️ 调整权重</button><button class="cta" onclick="PLAZAMODE='grid';go('plaza')">＋ 去广场挑更多</button></div></div>
  <div class="card" style="border-color:rgba(255,107,107,.3)"><div class="row">${av()}<b style="font-size:13px">🚨 总管提醒:小心你的战队"假分散"</b></div>
    <div class="muted" style="margin:8px 0;font-size:12.5px">AI 主题、电力、TMT、加密 这些其实都吃<b>同一个 AI 故事</b>——堆再多也是押一个方向。真想分散,得配点<b>全天候/贵金属/农业</b>这种不相关的。(你现在配了全天候和贵金属,做得不错。)</div></div>
  <div class="card"><div class="row between"><div class="mut3" style="font-size:12.5px">🧠 当前战队风格:<b style="color:var(--tx)">${styleFromPref()}</b> ${PREF.n?'← 来自你的刷卡偏好':'(刷几张卡我就懂你)'}</div><span class="lnk" onclick="go('memory')">记忆›</span></div></div>
- ${(function(){const e=Object.entries(PREF.themes).sort((a,b)=>b[1]-a[1]).find(([k])=>{const t=THEMES.find(x=>x.key===k);return t&&!t.picked;});if(!e)return '';const t=THEMES.find(x=>x.key===e[0]);return `<div class="card"><div class="mut3" style="font-size:12.5px">你最近常右滑<b>${t.name.replace(' Agent','')}</b>,但战队里还没它——<span class="lnk" onclick="go('gallery')">去广场加一个?</span></div></div>`;})()}
+ ${(function(){const e=Object.entries(PREF.themes).sort((a,b)=>b[1]-a[1]).find(([k])=>{const t=THEMES.find(x=>x.key===k);return t&&!t.picked;});if(!e)return '';const t=THEMES.find(x=>x.key===e[0]);return `<div class="card"><div class="mut3" style="font-size:12.5px">你最近常右滑<b>${t.name.replace(' Agent','')}</b>,但战队里还没它——<span class="lnk" onclick="PLAZAMODE='grid';go('plaza')">去广场加一个?</span></div></div>`;})()}
  <div class="card gold"><div class="muted" style="font-size:12.5px">😌 <b>放轻松</b>:你选的主题,<b>赚了是你眼光好</b>;亏了,换一个 agent 就是,别跟自己过不去。这就是按主题选 agent 的好处——你掌方向,我负责把每个主题做到最好、还诚实告诉你它现在行不行。</div></div>`;}
 function cycleWeights(){WPRESET=(WPRESET+1)%WPRESETS.length;const ks=['ai','metal','allweather'],w=WPRESETS[WPRESET];ks.forEach((k,i)=>{const t=THEMES.find(x=>x.key===k);if(t)t.w=w[i];});go('agent');}
-V.gallery=()=>{const pk=Object.keys(PREF.themes).filter(k=>PREF.themes[k]>0);
+function galleryGrid(){const pk=Object.keys(PREF.themes).filter(k=>PREF.themes[k]>0);
  const incat=t=>AGENTCAT==='全部'||t.cat===AGENTCAT;
  const list=[...THEMES].filter(incat).sort((a,b)=>(pk.includes(b.key)?1:0)-(pk.includes(a.key)?1:0));
  const feat=THEMES.filter(t=>t.featured);
- return `<div class="lnk" onclick="AGENTMODE='team';go('agent')">‹ 返回我的战队</div>
- <h1 style="padding-top:6px">Agent 广场 🛒</h1>
- <div class="sub">像挑主题基金一样挑 agent,<b>点格子看胜率/回撤/持仓等基金经理级信息</b>。战绩诚实——有的在赚,有的在亏。${pk.length?'<b style="color:var(--acc)">🎯 已按你刷卡口味标注推荐。</b>':''}</div>
+ return `<div class="sub">像挑主题基金一样挑 agent,<b>点格子看胜率/回撤/持仓等基金经理级信息</b>。战绩诚实——有的在赚,有的在亏。${pk.length?'<b style="color:var(--acc)">🎯 已按你刷卡口味标注推荐。</b>':''}</div>
  ${AGENTCAT==='全部'?`<div class="k" style="margin:2px 2px 8px">✨ 平台特色</div><div class="atiles" style="grid-template-columns:1fr 1fr;margin-bottom:6px">${feat.map(t=>tileCard(t,pk.includes(t.key))).join('')}</div><div class="mut3" style="margin:0 2px 12px">🔩 AI 瓶颈=专挑最卡脖子的环节 · 🌐 欧美映射=海外热点的 A 股/港股影子股</div>`:''}
- <div class="wrap2" style="margin-bottom:12px">${ACATS.map(c=>`<span class="chip ${AGENTCAT===c?'on':''}" onclick="AGENTCAT='${c}';go('gallery')">${c}</span>`).join('')}</div>
+ <div class="wrap2" style="margin-bottom:12px">${ACATS.map(c=>`<span class="chip ${AGENTCAT===c?'on':''}" onclick="AGENTCAT='${c}';go('plaza')">${c}</span>`).join('')}</div>
  <div class="atiles">${list.map(t=>tileCard(t,pk.includes(t.key))).join('')}</div>
  <div class="note">📈 指标均为演示假数据,非投资建议、非收益承诺。没有 agent 能一直赢;按主题分散、亏了换一个,正是这套玩法的设计初衷。</div>`;};
 function rc(r){return r==='低'?'var(--blue)':r==='中'?'var(--gold)':r==='极高'?'var(--bad)':'var(--warn)';}
@@ -319,10 +322,10 @@ function openAgent(k){const t=THEMES.find(x=>x.key===k),gain=t.m30>=0;
  <div class="mut3" style="margin:10px 0 4px">👤 适合谁:${t.fit}</div>
  <div class="note" style="border:none;padding-top:6px">⚠️ 没有 agent 能一直赢——${gain?'它现在顺风,但也会有回撤':'它现在在回撤,很正常:赚了是你眼光、亏了换一个'}。</div>
  <button class="${t.picked?'ghost':'cta'}" style="margin-top:12px" onclick="togglePick('${k}');openAgent('${k}')">${t.picked?'✓ 已在战队(点击移出)':'＋ 选进我的战队'}</button>
- <button class="ghost" style="margin-top:8px" onclick="closeAgent();AGENTMODE='team';go('agent')">去我的战队看组合 →</button>`;
+ <button class="ghost" style="margin-top:8px" onclick="closeAgent();PLAZAMODE='team';go('plaza')">去我的战队看组合 →</button>`;
  $('#adrawer').classList.add('show');}
 function closeAgent(){$('#adrawer').classList.remove('show');}
-function togglePick(k){const t=THEMES.find(x=>x.key===k);t.picked=!t.picked;if(t.picked&&!t.w)t.w=15;go('gallery');}
+function togglePick(k){const t=THEMES.find(x=>x.key===k);t.picked=!t.picked;if(t.picked&&!t.w)t.w=15;go('plaza');}
 function autoView(){
  if(!MANAGEON) return `<div class="card hl"><div class="row">${av()}<b style="font-size:14px">让 ${NAME} 替你自动管一部分钱</b></div>
    <div class="muted" style="margin:8px 0;font-size:12.5px">不是躺赚、不预测暴富。它替你做<b>你懒得做、又最容易做错</b>的纪律活:该减就减、止盈止损、跌多了上对冲、不追高不踏空——靠<b>少犯错</b>长期赚。全程在你的规矩里,先用模拟盘。</div>
@@ -332,7 +335,7 @@ function autoView(){
    <div class="flag" style="margin-top:10px">🛑 它<b>永不加杠杆、永不全仓、永不碰你拉黑的票、永不转账提现</b>;单日亏到刹车线立刻停;你随时一键全平+收回。</div></div>`;
  return `<div class="card" style="border-left:3px solid var(--acc)"><div class="row between"><div><b>🤖 ${NAME} 正替你自动管钱</b><div class="mut3">模拟托管 · 第 4 天 · 均衡风格</div></div><span class="tag acc">运行中</span></div>
    <div class="muted" style="margin-top:8px;font-size:12px">它赚的是"纪律的钱":不情绪化、7×24 盯、该动手时不手软。不保证每天涨,保证不乱来。</div></div>
- <div class="card" onclick="AGENTMODE='team';go('agent')" style="cursor:pointer;border-color:rgba(255,138,61,.25)"><div class="row between"><div><b style="font-size:12.5px">🧑‍✈️ 替你管钱的是你的战队</b><div class="mut3">AI 50% · 贵金属 30% · 全天候 20%</div></div><span class="lnk">管理战队 ›</span></div></div>
+ <div class="card" onclick="PLAZAMODE='team';go('plaza')" style="cursor:pointer;border-color:rgba(255,138,61,.25)"><div class="row between"><div><b style="font-size:12.5px">🧑‍✈️ 替你管钱的是你的战队</b><div class="mut3">AI 50% · 贵金属 30% · 全天候 20%</div></div><span class="lnk">管理战队 ›</span></div></div>
  <div class="row" style="gap:8px"><div class="card" style="flex:1;margin:0"><div class="k">托管额度</div><div class="big" style="font-size:18px">¥5万</div><div class="mut3">模拟</div></div>
    <div class="card" style="flex:1;margin:0"><div class="k">今日</div><div class="big up" style="font-size:18px">+0.6%</div></div>
    <div class="card" style="flex:1;margin:0"><div class="k">启用至今</div><div class="big up" style="font-size:18px">+5.8%</div><div class="mut3">含3个跌日</div></div></div>
@@ -392,19 +395,22 @@ function ask(k){const c=$('#chat'),a=ANS[k],q={risk:'我最大的风险是啥?',
 
 /* ---------- 我的 + 子页(第3轮) ---------- */
 V.me=()=>`<h1>我的 ☰</h1>
- <div class="vs"><div><div class="mut3">别的 app</div><div style="font-size:12.5px;margin-top:4px">给你一堆<b>信息</b>,看完还是你自己抓瞎</div></div>
-   <div style="border-color:var(--acc)"><div class="lnk" style="cursor:default">${NAME}</div><div style="font-size:12.5px;margin-top:4px">替你<b>盯着、把关、还能动手</b>,亏钱时陪着你</div></div></div>
- <div class="card"><div class="row between"><div><b>自律分 84</b> <span class="up">↑12</span><div class="mut3">这个月 ${NAME} 拦下你 3 次破规矩</div></div><button class="ghost" style="width:auto;padding:8px 12px" onclick="openShareDisc()">🛡️ 晒自律</button></div></div>
- ${meRow('🧠','${NAME} 对你的记忆'.replace('${NAME}',NAME),'它记住的关于你 · 怎么改变它帮你投','memory')}
- ${meRow('🛡️','跟练战队 & 拥挤度','比自律不比收益 · 帮你躲开扎堆','squad')}
- ${meRow('🎯','我的规矩','它只在你定的护栏里动手','rules')}
+ <div class="card"><div class="row between"><div><b style="font-size:15px">自律分 84</b> <span class="up">↑12</span><div class="mut3">这月 ${NAME} 拦下你 3 次破规矩 · 模拟陪练第 3 天</div></div><button class="ghost" style="width:auto;padding:8px 12px" onclick="openShareDisc()">🛡️ 晒自律</button></div></div>
+ <h2>💼 我的资产</h2>
  ${meRow('⊞','持仓透视','看穿你其实在押什么','xray')}
+ ${meRow('🎯','我的规矩','它只在你定的护栏里动手','rules')}
+ ${meRow('🧩','平替篮子','买不起/买不了的,用小钱复刻','replica')}
+ ${meRow('📅','持仓日历','财报/FOMC 等大事 + 大事前管仓','cal')}
+ <h2>🧠 关于 ${NAME}</h2>
+ ${meRow('🧠','${NAME} 的记忆'.replace('${NAME}',NAME),'它记住的关于你 · 怎么改变它帮你投','memory')}
  ${meRow('◐','它准不准 · 成绩单','它说过→后来咋样,可回看','score')}
- ${meRow('🔒','钱安全吗','它怎么连账户 · 为什么不会跑路','safety')}
  ${meRow('⚠','它哪里不行','肯认怂的才值得信','limits')}
- <div class="card gold"><div class="row between"><div><b>⚡ Freeride Pro</b><div class="mut3">只解锁"让它替你自动动手"</div></div><span class="tag gold">¥38/月</span></div>
-   <button class="pro" style="margin-top:10px" onclick="openSettle()">看陪练第 7 天成果,再决定</button></div>
- <div class="note">${PAPER?'🟢 现在是模拟陪练':'🔴 实盘'} · 提醒/盯盘/找机会/聊天永远免费</div>`;
+ <h2>👥 社区</h2>
+ ${meRow('🛡️','跟练战队 & 拥挤度','比自律不比收益 · 帮你躲开扎堆','squad')}
+ <h2>⚙️ 账户</h2>
+ ${meRow('🔒','钱安全吗','它怎么连账户 · 为什么不会跑路','safety')}
+ <div class="card gold"><div class="row between"><div><b>⚡ Freeride Pro</b><div class="mut3">只解锁"让它替你自动动手" · ¥38/月</div></div><button class="pro" style="width:auto;padding:8px 14px" onclick="openSettle()">了解</button></div></div>
+ <div class="note">${PAPER?'🟢 现在是模拟陪练 — 先练再上真钱':'🔴 实盘'} · 提醒/盯盘/找机会/聊天永远免费</div>`;
 function meRow(ic,t,s,v){return `<div class="card" onclick="go('${v}')" style="cursor:pointer"><div class="row"><div class="ic">${ic}</div><div style="flex:1"><b>${t}</b><div class="mut3">${s}</div></div><span class="mut3">›</span></div></div>`;}
 V.rules=()=>`<h1>我的规矩 🎯</h1><div class="sub">${NAME}<b>只在你定的这些护栏里</b>动手,越界立刻停。你说了算。</div>
  <div class="card"><div class="li"><div style="flex:1"><b>单只不超过</b><div class="mut3">超了就提醒/帮你减</div></div><span class="pill on">20%</span></div>
@@ -522,7 +528,7 @@ function swipeResult(){const nm=k=>(THEMES.find(t=>t.key===k)||{}),
  return `<div class="card hl"><div class="row">${av()}<b style="font-size:14px">📜 收到您的尊贵指示 ✦</b></div>
    <div class="muted" style="margin:8px 0;font-size:12.5px">属下已把您这 <b>${PREF.n}</b> 次"圣意"写进记忆——您偏爱 <b>${prefTop(2).join(' / ')||'…'}</b>、风格 <b>${risk}</b>。这就去为您优化<b>战队配置与风控</b>,并<b>定期向您汇报</b>。</div>
    <div class="k" style="margin:8px 0 0;text-align:center">🛰️ 你的投资偏好画像</div>${radar()}</div>
-  ${recs.length?`<div class="card"><div class="k" style="margin-bottom:8px">🛒 据此 ${NAME} 给你挑了这些 agent</div>${recs.map(t=>`<div class="li"><div class="ic">${t.emoji}</div><div style="flex:1"><b style="font-size:12.5px">${t.name}</b><div class="mut3">近30天 ${t.m30>0?'+':''}${t.m30}% · 风险 ${t.risk}</div></div></div>`).join('')}<button class="cta" style="margin-top:10px" onclick="go('gallery')">去广场把它们选进战队 →</button></div>`:''}
+  ${recs.length?`<div class="card"><div class="k" style="margin-bottom:8px">🛒 据此 ${NAME} 给你挑了这些 agent</div>${recs.map(t=>`<div class="li"><div class="ic">${t.emoji}</div><div style="flex:1"><b style="font-size:12.5px">${t.name}</b><div class="mut3">近30天 ${t.m30>0?'+':''}${t.m30}% · 风险 ${t.risk}</div></div></div>`).join('')}<button class="cta" style="margin-top:10px" onclick="PLAZAMODE='grid';go('plaza')">去广场把它们选进战队 →</button></div>`:''}
   <div class="card"><div class="mut3" style="font-size:12px">😌 <b>无聊就刷两张</b>,我会<b>定期帮你总结</b>、越来越懂你。想看我记住了啥 → <span class="lnk" onclick="go('memory')">我的记忆 ›</span></div></div>
   <button class="cta" onclick="SWIPEI=0;go('hot')">🔄 继续刷(攒越多越准)</button>
   <button class="ghost" style="margin-top:8px" onclick="SWIPEI=0;PREF={themes:{},risk:0,n:0};go('hot')">清空重来</button>`;}
@@ -687,10 +693,10 @@ function replChart(a,b){const w=300,h=72,all=a.concat(b),mn=Math.min(...all),mx=
 function buyBasket(){$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">✅</span><div style="flex:1"><b style="font-size:12.5px">已按比例配好(模拟盘)</b><div class="mut3" style="color:var(--tx2)">${REPTGT} 平替篮子已下单,${NAME} 会帮你盯着跟踪误差</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,4000);}
 
 /* ---------- 交互 ---------- */
-const TAB={today:'today',hot:'hot',cal:'cal',earn:'cal',replica:'today',agent:'agent',gallery:'agent',memory:'me',me:'me',squad:'me',rules:'me',xray:'me',score:'me',safety:'me',limits:'me'};
+const TAB={today:'today',hot:'hot',cal:'today',earn:'today',replica:'today',plaza:'plaza',gallery:'plaza',agent:'agent',memory:'me',me:'me',squad:'me',rules:'me',xray:'me',score:'me',safety:'me',limits:'me'};
 function go(v){$('#scroll').innerHTML=V[v]();document.querySelectorAll('#tabbar .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB[v]));
  if(v==='agent'&&AGENTMODE==='work')setAuto(AUTO,true);$('#scroll').scrollTop=0;}
-$('#tabbar').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){if(b.dataset.t==='agent')AGENTMODE='team';if(b.dataset.t==='today')DD=false;go(b.dataset.t);}});
+$('#tabbar').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){if(b.dataset.t==='agent')AGENTMODE='auto';if(b.dataset.t==='plaza')PLAZAMODE='grid';if(b.dataset.t==='today')DD=false;go(b.dataset.t);}});
 function doPending(ok){PENDING=false;FEED.unshift(ok?{d:'刚刚',t:`${NAME}已去办:给 AI 仓加了 1.5% 的"防大跌"保险${PAPER?'(模拟盘)':''},到点会提醒你`,c:'good'}:{d:'刚刚',t:'好,听你的,这单不做了,记一笔',c:'blue'});go('agent');}
 function addTask(){TASKS.unshift({t:'盯着比特币赌涨的人多不多,不挤了就告诉你',s:'刚接到,盯上了',p:30});go('agent');}
 const AUTOD=['<b>只出主意</b>:只提示分析,一根手指不碰你账户。最安全。','<b>写好等我点</b>:把单子写好,你点一下才执行。','<b>规矩内自动</b>:只在你定死的规矩里替你动手,越界立刻停。要 Pro,且陪练满 7 天才解锁。'];
