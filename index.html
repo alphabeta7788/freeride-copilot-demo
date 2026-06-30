@@ -153,7 +153,7 @@ input,select{background:var(--card2);border:1px solid var(--line);color:var(--tx
 <script>
 /* ---------- 状态 ---------- */
 let NAME='',PAPER=true,AGENTMODE='auto',PLAZAMODE='grid',AUTO=0,PENDING=true,ONBSTEP=1,PORT='ai5',DD=false,HOTCAT='我的持仓',CALSEL=new Set([0,1]),CALDAY=null,MANAGEON=false,CUREARN='NVDA',WPRESET=0,HOTMODE='swipe',SWIPEI=0,PREF={themes:{},risk:0,n:0};
-let STYLE='',AGENTCAT='全部',REPTGT='寒武纪',SQMODE='hall',MEM=[{src:'行为',t:'你爱追高、一回调就手痒(本月已拦下 3 次)'},{src:'行为',t:'听劝率 76%,比多数人高'},{src:'持仓',t:'你 71% 押在 AI 一个方向'},{src:'你说的',t:'绝不碰日内高频'}];
+let STYLE='',AGENTCAT='全部',REPTGT='寒武纪',SQMODE='hall',CHK=false,MEM=[{src:'行为',t:'你爱追高、一回调就手痒(本月已拦下 3 次)'},{src:'行为',t:'听劝率 76%,比多数人高'},{src:'持仓',t:'你 71% 押在 AI 一个方向'},{src:'你说的',t:'绝不碰日内高频'}];
 let FEED=[
  {d:'今早 06:14',t:'比特币赌涨的人退了一些,按你立的规矩提醒了你(你在睡觉),没擅自动手',c:'blue'},
  {d:'昨天 14:30',t:'你 AI 仓一度冲到 79%,我先替你顶住没乱动,等你醒来再商量',c:'warn'},
@@ -651,7 +651,9 @@ function squadHall(){return `
  <button class="cta" style="margin-top:4px" onclick="inviteSquad()">＋ 邀请朋友,组个私密战队互相监督</button>
  <div class="note">🔒 不显示任何人的仓位和收益,只共享自律/过程;feed 禁个股喊单,可举报。</div>`;}
 function squadMy(){return `
- <div class="card hl"><div class="row between"><b>🎯 本周全队挑战:不追高</b><span class="tag acc">4/4 在坚持</span></div><div class="mut3" style="margin:6px 0">坚持到周日,全队解锁"铁纪律"徽章 · 已坚持 5 天</div><div class="bar"><i style="width:71%;background:var(--acc)"></i></div></div>
+ <div class="card" onclick="go('profile')" style="cursor:pointer"><div class="row"><span class="av" style="width:30px;height:30px;font-size:13px">${(NAME||'你')[0]}</span><div style="flex:1;margin-left:5px"><b style="font-size:12.5px">${NAME} · 自律分 84</b><div class="mut3">🛡️ 拦截大师 · 🔥 30天不追高 · 🎯 最听劝</div></div><span class="lnk">我的主页›</span></div></div>
+ <div class="card hl"><div class="row between"><b>🎯 本周全队挑战:不追高</b><span class="tag acc">4/4 在坚持</span></div><div class="mut3" style="margin:6px 0">坚持到周日,全队解锁"铁纪律"徽章 · 已坚持 5 天</div><div class="bar" style="margin-bottom:10px"><i style="width:71%;background:var(--acc)"></i></div><button class="${CHK?'ghost':'cta'}" onclick="checkIn()">${CHK?'✅ 今日已打卡 · 连续 +1':'✋ 今日打卡(坚持不追高)'}</button></div>
+ <div class="card" style="background:rgba(217,154,91,.06);border-color:rgba(217,154,91,.25)"><div class="row" style="margin-bottom:4px">${av()}<b style="font-size:12px">🤝 你的 agent 和老王的 agent 对了下 notes</b></div><div class="muted" style="font-size:12.5px">发现:你俩都在裸多 AI,但<b>老王已经做了对冲</b>——这是只有"每人一个 agent"才能互通的洞察。要不要我也帮你照做?</div><button class="ghost" style="margin-top:8px" onclick="agentNotes()">让它帮我照老王那样对冲</button></div>
  <h2>🌊 战队动态</h2>
  ${SQFEED.map((f,i)=>feedCard(f,'s',i)).join('')}
  <h2>🏅 小队榜 · 比自律不比收益</h2>
@@ -661,6 +663,22 @@ function squadMy(){return `
    <div class="li"><div class="ic">🎯</div><div style="flex:1"><b style="font-size:12.5px">最听劝</b><div class="mut3">你听了 8 次提醒里的 7 次</div></div></div></div>
  <button class="cta" onclick="inviteSquad()">＋ 再拉个搭子(你俩各得 7 天 Pro)</button>
  <div class="note">🔒 只共享自律/过程,不晒仓位收益、不喊单。</div>`;}
+const BADGES=[{e:'🛡️',n:'拦截大师',got:1},{e:'🔥',n:'30天不追高',got:1},{e:'🎯',n:'最听劝',got:1},{e:'🌊',n:'逆向勇士',got:1},{e:'🧊',n:'铁纪律',got:0},{e:'🤝',n:'好搭子',got:0}];
+V.profile=()=>`<div class="lnk" onclick="go('squad')">‹ 返回社区</div>
+ <h1 style="padding-top:6px">我的社区主页</h1>
+ <div class="card" style="text-align:center"><span class="av" style="width:54px;height:54px;font-size:24px;margin:0 auto;display:grid">${(NAME||'你')[0]}</span>
+   <div style="font-size:16px;font-weight:750;margin-top:8px">${NAME}</div>
+   <div class="mut3">自律分 84 · 连续 23 天 · 听劝率 76%</div>
+   <div class="mut3" style="margin-top:6px">我以此著称:<b style="color:var(--tx)">稳健 · 爱对冲 · 最近在练"不追高"</b></div></div>
+ <h2>🏅 我的徽章</h2>
+ <div class="atiles">${BADGES.map(b=>`<div class="tile" style="${b.got?'':'opacity:.4'}"><span class="em">${b.e}</span><span class="tn">${b.n}</span><span class="mut3" style="font-size:9px">${b.got?'已获得':'未解锁'}</span></div>`).join('')}</div>
+ <h2>📜 里程碑</h2>
+ <div class="card"><div class="li"><div class="ic">🔥</div><div style="flex:1"><b style="font-size:12.5px">连续 23 天打卡</b><div class="mut3">每天开盘前 3 分钟</div></div></div>
+   <div class="li"><div class="ic">🛡️</div><div style="flex:1"><b style="font-size:12.5px">被拦下 11 次冲动</b><div class="mut3">少踩了好几个坑</div></div></div>
+   <div class="li"><div class="ic">🎯</div><div style="flex:1"><b style="font-size:12.5px">听劝率 76%</b><div class="mut3">比多数人高</div></div></div></div>
+ <div class="note">🔒 社区身份只由"过程/自律"构成,不含你的仓位和收益。</div>`;
+function checkIn(){CHK=true;$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">✅</span><div style="flex:1"><b style="font-size:12.5px">今日打卡成功</b><div class="mut3" style="color:var(--tx2)">坚持不追高 · 连续 +1 · 全队为你 👏</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,3500);go('squad');}
+function agentNotes(){$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">🤝</span><div style="flex:1"><b style="font-size:12.5px">${NAME} 去办了</b><div class="mut3" style="color:var(--tx2)">已参考老王的对冲思路给你拟了一单,去"管钱"看看</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,4000);}
 function inviteSquad(){$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">🔗</span><div style="flex:1"><div class="row between"><b style="font-size:12.5px">邀请链接已生成</b><span class="mut3">粘给朋友</span></div><div class="mut3" style="color:var(--tx2)">朋友加入一起模拟陪练,你俩各得 7 天 Pro 体验</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,4500);}
 
 /* ---------- 记忆系统:刷卡/行为/持仓 → 记忆 → 改变投资风格 ---------- */
@@ -722,7 +740,7 @@ function replChart(a,b){const w=300,h=72,all=a.concat(b),mn=Math.min(...all),mx=
 function buyBasket(){$('#toast').innerHTML=`<div class="row"><span style="font-size:18px">✅</span><div style="flex:1"><b style="font-size:12.5px">已按比例配好(模拟盘)</b><div class="mut3" style="color:var(--tx2)">${REPTGT} 平替篮子已下单,${NAME} 会帮你盯着跟踪误差</div></div></div>`;$('#toast').classList.add('show');setTimeout(dismissToast,4000);}
 
 /* ---------- 交互 ---------- */
-const TAB={today:'today',hot:'hot',cal:'today',earn:'today',replica:'today',plaza:'plaza',gallery:'plaza',agent:'agent',memory:'me',me:'me',squad:'me',rules:'me',xray:'me',score:'me',safety:'me',limits:'me'};
+const TAB={today:'today',hot:'hot',cal:'today',earn:'today',replica:'today',plaza:'plaza',gallery:'plaza',agent:'agent',memory:'me',me:'me',squad:'me',profile:'me',rules:'me',xray:'me',score:'me',safety:'me',limits:'me'};
 function go(v){$('#scroll').innerHTML=V[v]();document.querySelectorAll('#tabbar .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===TAB[v]));
  if(v==='agent'&&AGENTMODE==='work')setAuto(AUTO,true);$('#scroll').scrollTop=0;}
 $('#tabbar').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){if(b.dataset.t==='agent')AGENTMODE='auto';if(b.dataset.t==='plaza')PLAZAMODE='grid';if(b.dataset.t==='today')DD=false;go(b.dataset.t);}});
